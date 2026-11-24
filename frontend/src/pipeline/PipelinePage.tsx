@@ -67,7 +67,7 @@ function Shown({ saved }: { saved: Board }) {
 function BoardFigure({ value, label }: { value: string; label: string }) {
   return (
     <span>
-      <span className="num mr-0.5 text-[17px] font-semibold tracking-[-0.02em] text-ink">{value}</span> {label}
+      <span className="num mr-[3px] text-[17px] font-semibold tracking-[-0.02em] text-ink">{value}</span> {label}
     </span>
   )
 }

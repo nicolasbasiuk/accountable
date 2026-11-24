@@ -10,7 +10,7 @@ test('money is whole dollars, rounded only when shown', () => {
 })
 
 test('short money for the axis of a chart', () => {
-  expect([0, 500, 50_000, 200_000, 1_500_000].map(shortMoney)).toEqual(['$0', '$500', '$50K', '$200K', '$1.5M'])
+  expect([0, 500, 50_000, 200_000, 1_500_000, 2_000_000_000].map(shortMoney)).toEqual(['$0', '$500', '$50K', '$200K', '$1.5M', '$2B'])
 })
 
 test('percentages', () => {

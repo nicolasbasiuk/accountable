@@ -9,8 +9,9 @@ const wholeDollars = new Intl.NumberFormat('en-US', { style: 'currency', currenc
 
 export const money = (amount: number) => wholeDollars.format(amount)
 
-/** For the axis of a chart: $0, $500, $50K, $1.5M. */
+/** For the axis of a chart: $0, $500, $50K, $1.5M, $2B. */
 export function shortMoney(amount: number): string {
+  if (amount >= 1_000_000_000) return `$${amount / 1_000_000_000}B`
   if (amount >= 1_000_000) return `$${amount / 1_000_000}M`
   if (amount >= 1_000) return `$${amount / 1_000}K`
   return `$${amount}`

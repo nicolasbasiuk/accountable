@@ -33,8 +33,8 @@ type HeadedPanelProps = { heading: string; action?: ReactNode; className?: strin
 export function HeadedPanel({ heading, action, className = '', low = false, children }: HeadedPanelProps) {
   return (
     <Panel label={heading} className={`px-6 py-5 ${className}`}>
-      <div className={`flex items-center justify-between gap-4 ${low ? '' : 'min-h-9'}`}>
-        <h2 className="text-lg font-semibold">{heading}</h2>
+      <div className={`flex justify-between gap-4 ${low ? 'items-baseline' : 'min-h-10.5 items-center'}`}>
+        <h2 className="text-lg leading-[1.3] font-semibold">{heading}</h2>
         {action}
       </div>
       {children}

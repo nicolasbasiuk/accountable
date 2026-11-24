@@ -1,16 +1,17 @@
 import { useQuery } from '@tanstack/react-query'
-import { BriefcaseBusiness, Building2, Kanban, LayoutDashboard, Users } from 'lucide-react'
+import { LayoutDashboard, Users } from 'lucide-react'
 import { NavLink, Outlet, ScrollRestoration } from 'react-router'
+import { DealsIcon, OrganizationsIcon, PipelineIcon } from './icons'
 import { configQuery } from './shared/config'
 import { Messages } from './shared/Messages'
 import { ErrorState, OutOfDate } from './shared/states'
 
 const SECTIONS = [
   { path: '/', name: 'Dashboard', Icon: LayoutDashboard },
-  { path: '/organizations', name: 'Organizations', Icon: Building2 },
+  { path: '/organizations', name: 'Organizations', Icon: OrganizationsIcon },
   { path: '/contacts', name: 'Contacts', Icon: Users },
-  { path: '/deals', name: 'Deals', Icon: BriefcaseBusiness },
-  { path: '/pipeline', name: 'Pipeline', Icon: Kanban },
+  { path: '/deals', name: 'Deals', Icon: DealsIcon },
+  { path: '/pipeline', name: 'Pipeline', Icon: PipelineIcon },
 ]
 
 export function Frame() {

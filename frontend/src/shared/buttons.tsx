@@ -22,7 +22,7 @@ export function Button({ look = 'quiet', className = '', type = 'button', ...pro
 /** The one main action of a page, such as "Add deal". */
 export function AddButton({ children, ...props }: ComponentProps<'button'>) {
   return (
-    <Button look="main" className="pr-4.5 pl-3.5" {...props}>
+    <Button look="main" className="min-h-10.5 pr-4.5 pl-3.5" {...props}>
       <Plus size={18} aria-hidden />
       {children}
     </Button>

@@ -2,6 +2,7 @@ import { Area, AreaChart, Bar, BarChart, CartesianGrid, LabelList, Rectangle, Re
 import { money, monthAndYear, monthName, plural, shortMoney } from '../shared/format'
 import { ChartPanel, Tip } from './ChartPanel'
 import type { Month } from './queries'
+import { scale } from './scale'
 
 const HEIGHT = 206
 const GREEN = 'var(--color-sea-green)'
@@ -25,6 +26,7 @@ function MonthTip({ active, payload }: TipProps) {
 export function MonthCharts({ months }: { months: Month[] }) {
   const last = months.at(-1)!
   const highest = months.reduce((most, month) => (month.value > most.value ? month : most), last)
+  const { top, ticks } = scale(highest.value || NO_REVENUE)
   return (
     <div className="mb-4 grid grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-4">
       <ChartPanel
@@ -33,10 +35,10 @@ export function MonthCharts({ months }: { months: Month[] }) {
       >
         <div className="mt-3" role="group" aria-label="Line chart of the revenue won in each of the last 12 months">
           <ResponsiveContainer width="100%" height={HEIGHT} initialDimension={{ width: 600, height: HEIGHT }}>
-            <AreaChart data={months} margin={{ top: 28, right: 86, bottom: 0, left: 0 }}>
-              <CartesianGrid vertical={false} stroke={HAIR} />
-              <XAxis dataKey="month" tickFormatter={monthName} tick={TEXT} tickLine={false} axisLine={false} interval={0} height={24} padding={{ left: 14 }} />
-              <YAxis tickFormatter={shortMoney} tick={TEXT} tickLine={false} axisLine={false} width={56} tickCount={3} domain={[0, highest.value > 0 ? 'auto' : NO_REVENUE]} />
+            <AreaChart data={months} margin={{ top: 14, right: 8, bottom: 0, left: 0 }}>
+              <CartesianGrid vertical={false} syncWithTicks stroke={HAIR} />
+              <XAxis dataKey="month" tickFormatter={monthName} tick={TEXT} tickLine={false} axisLine={false} interval={0} height={24} tickMargin={5.5} padding={{ left: 12, right: 78 }} />
+              <YAxis tickFormatter={shortMoney} tick={TEXT} tickLine={false} axisLine={false} width={52} tickMargin={4} ticks={ticks} interval={0} domain={[0, top]} />
               <Tooltip content={<MonthTip />} isAnimationActive={false} cursor={{ stroke: 'var(--color-sea-mist)' }} />
               <Area
                 dataKey="value"
@@ -61,10 +63,10 @@ export function MonthCharts({ months }: { months: Month[] }) {
       >
         <div className="mt-3" role="group" aria-label="Bar chart of the number of deals won in each of the last 12 months">
           <ResponsiveContainer width="100%" height={HEIGHT} initialDimension={{ width: 400, height: HEIGHT }}>
-            <BarChart data={months} margin={{ top: 22, right: 0, bottom: 0, left: 0 }}>
-              <XAxis dataKey="month" tickFormatter={monthName} tick={{ ...TEXT, fontSize: 11.5 }} tickLine={false} axisLine={{ stroke: HAIR }} interval={0} height={24} />
+            <BarChart data={months} margin={{ top: 14, right: 8, bottom: 0, left: 4 }} barCategoryGap={5}>
+              <XAxis dataKey="month" tickFormatter={monthName} tick={TEXT} tickLine={false} axisLine={{ stroke: HAIR }} interval={0} height={24} tickMargin={5.5} />
               <Tooltip content={<MonthTip />} isAnimationActive={false} cursor={{ fill: 'var(--color-page)' }} />
-              <YAxis hide domain={[0, (most: number) => Math.max(most, 1)]} />
+              <YAxis hide domain={[0, (most: number) => Math.max(most, 1) * 1.25]} />
               {/* A shape of its own, because without one a month of 0 gets no number. */}
               <Bar dataKey="deals" fill={GREEN} shape={MonthBar} maxBarSize={22} isAnimationActive={false}>
                 <LabelList dataKey="deals" position="top" offset={7} style={LABEL} />
@@ -87,7 +89,7 @@ function Point({ month, place }: { month: Month; place: 'top' | 'right' }) {
       fill={DARK_GREEN}
       stroke="var(--color-white)"
       strokeWidth={2}
-      label={{ value: money(month.value), position: place, offset: place === 'top' ? 10 : 12, style: LABEL }}
+      label={{ value: money(month.value), position: place, offset: place === 'top' ? 8 : 7, style: LABEL }}
     />
   )
 }

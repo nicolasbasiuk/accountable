@@ -16,5 +16,6 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: './src/testSetup.ts',
+    allowOnly: false, // A stray it.only would hide the other tests in its file.
   },
 })

@@ -32,9 +32,12 @@ test.each([['lead', 'Lead'], ['qualified', 'Qualified'], ['customer', 'Customer'
 
 test('late says so in words', () => {
   const { rerender, container } = render(<LateTag days={1} />)
-  expect(screen.getByText('Late 1 day')).toBeVisible()
+  // The number is an element of its own, in the font of numbers.
+  expect(container).toHaveTextContent(/^Late 1 day$/)
+  expect(container.firstElementChild).toBeVisible()
+  expect(screen.getByText('1')).toHaveClass('num')
   rerender(<LateTag days={11} />)
-  expect(screen.getByText('Late 11 days')).toBeVisible()
+  expect(container).toHaveTextContent(/^Late 11 days$/)
   rerender(<LateTag days={0} />)
   expect(container).toBeEmptyDOMElement()
 })

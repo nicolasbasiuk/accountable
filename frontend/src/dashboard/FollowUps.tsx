@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { daysBetween, due, plural } from '../shared/format'
+import { Count } from '../shared/Count'
+import { daysBetween, due } from '../shared/format'
 import { HeadedPanel } from '../shared/panels'
 import { EntryRecordLink } from '../timeline/entries'
 import { useFinish, type FollowUp } from './queries'
@@ -58,7 +59,7 @@ function Item({ followUp, today }: { followUp: FollowUp; today: string }) {
         <EntryRecordLink record={followUp.record} />
       </span>
       <span className="justify-self-end">
-        {late > 0 ? <span className="tag">{plural(late, 'day')}</span> : <time dateTime={followUp.follow_up_on} className="num text-xs">{due(followUp.follow_up_on, today)}</time>}
+        {late > 0 ? <span className="tag"><Count amount={late} word="day" /></span> : <time dateTime={followUp.follow_up_on} className="num text-xs">{due(followUp.follow_up_on, today)}</time>}
       </span>
     </li>
   )

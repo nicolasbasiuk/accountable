@@ -1,5 +1,6 @@
 import { STAGE_LOOKS } from '../deals/stages'
 import { stageInfo, useConfig } from '../shared/config'
+import { Count } from '../shared/Count'
 import { money, plural } from '../shared/format'
 import { ChartPanel, Tip, TipOn } from './ChartPanel'
 import type { OpenStage } from './queries'
@@ -24,7 +25,7 @@ export function OpenDeals({ stages }: { stages: OpenStage[] }) {
         <div className="mt-2.5 grid grid-cols-[128px_minmax(0,1fr)_auto_auto] items-center gap-x-6 gap-y-4">
           <span aria-hidden />
           <p className="text-sm text-muted">
-            <Swatch color="var(--color-ink)" /> Expected <Swatch color={light('var(--color-ink)')} className="ml-3" /> Rest
+            <Swatch color="var(--color-ink)" />Expected <Swatch color={light('var(--color-ink)')} className="ml-3" />Rest
           </p>
           <p className="text-right text-sm text-muted">Open value</p>
           <p className="text-right text-sm text-muted">Expected</p>
@@ -38,7 +39,7 @@ export function OpenDeals({ stages }: { stages: OpenStage[] }) {
                   <span>
                     {name(row)}
                     <span className="block text-sm font-normal text-muted">
-                      <span className="num">{row.deals}</span> {row.deals === 1 ? 'deal' : 'deals'}
+                      <Count amount={row.deals} word="deal" />
                     </span>
                   </span>
                 </p>
@@ -61,5 +62,5 @@ export function OpenDeals({ stages }: { stages: OpenStage[] }) {
 }
 
 function Swatch({ color, className = '' }: { color: string; className?: string }) {
-  return <i aria-hidden className={`mr-1 inline-block size-3.5 rounded-[4px] align-[-2px] ${className}`} style={{ background: color }} />
+  return <i aria-hidden className={`mr-1.5 inline-block size-3.5 rounded-[4px] align-[-2px] ${className}`} style={{ background: color }} />
 }

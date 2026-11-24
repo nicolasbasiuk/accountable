@@ -4,7 +4,8 @@ import { useState } from 'react'
 import { AddButton, IconButton } from '../shared/buttons'
 import { useConfig } from '../shared/config'
 import { ConfirmDelete } from '../shared/ConfirmDelete'
-import { date, dateTime, daysBetween, plural, shorten } from '../shared/format'
+import { Count } from '../shared/Count'
+import { date, dateTime, daysBetween, shorten } from '../shared/format'
 import { HeadedPanel } from '../shared/panels'
 import { Loaded } from '../shared/states'
 import { ActivityForm, type On } from './ActivityForm'
@@ -110,7 +111,7 @@ function FollowUp({ activity, day }: { activity: ActivityEntry; day: string }) {
         Follow up on <time dateTime={day} className="num text-xs">{date(day)}</time>
       </span>
       {done && <span className="text-sm font-medium">Done</span>}
-      {overdue > 0 && <span className="tag">Overdue {plural(overdue, 'day')}</span>}
+      {overdue > 0 && <span className="tag">Overdue <Count amount={overdue} word="day" /></span>}
     </label>
   )
 }
