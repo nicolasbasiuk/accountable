@@ -173,7 +173,7 @@ The backend owns every rule: stage changes, lateness, timelines, the funnel and 
 | Server data in the frontend | TanStack Query | Refetching, and undoing a failed change |
 | Pages | React Router | Addresses (G2) |
 | Tables | TanStack Table | Search and sort, in the browser: a few hundred rows |
-| Charts | Recharts | Line, bar and pipeline visuals |
+| Charts | Recharts | Line, bar and pipeline visuals. The funnel's ribbon isn't a standard chart, so it's a small drawing of its own |
 | Pipeline | `@hello-pangea/dnd` | Made for boards, with the keyboard built in |
 | Dialogs, menus, pickers, messages | Base UI | Accessible, without a look of its own |
 | Forms | React Hook Form | |
@@ -230,10 +230,10 @@ There's no sign-in, so the server listens on `127.0.0.1` only, refuses any host 
 ### Screens
 
 - **Frame:** a 208-pixel sidebar with the five sections, then the page: a heading, one main action, the content. A record's name is a link wherever it appears.
-- **Dashboard:** the four figures across the top; the line and bar charts; the pipeline by stage and the funnel; then follow-ups and recent activity. At 1440 by 900 the figures, both charts and the top of the pipeline show without scrolling.
+- **Dashboard:** the four figures across the top; the line and bar charts; the funnel (B4) as one ribbon across the page, narrowing from New to Won; the pipeline by stage (B3) as a panel of bars, with expected revenue in the solid part of each; then follow-ups, grouped into overdue and due, beside recent activity, grouped by day. At 1440 by 900 the figures, both charts and the top of the funnel show without scrolling.
 - **Lists:** search and filter on the left, Add on the right, the table in one panel.
 - **Record pages:** details on one side with Edit and Delete, linked records under them, and the timeline beside them with Log activity at its top.
-- **Pipeline:** the board's figures, then six equal columns filling the height. On a screen narrower than 1280 pixels the page scrolls sideways.
+- **Pipeline:** the board's figures, then six equal columns filling the height. Each column starts with a rounded block in its stage's color, all the same size, holding its name, figures and Add button; its white cards follow. On a screen narrower than 1280 pixels the page scrolls sideways.
 - **Forms:** one dialog for each kind of record, the same wherever it's opened.
 
 ### Look
@@ -267,7 +267,7 @@ Colors:
 | Won | Midnight | | | |
 | Lost | `#6B818A` | | | |
 
-- A stage or status is a colored dot with its name in Midnight. The name is always there: Marigold and Coral are too close to tell apart by color alone.
+- A stage or status is a colored dot with its name in Midnight, except in the pipeline's column blocks and the funnel, which are filled with the stage's color. Their text is Midnight, or white on Cerulean and Midnight. Lost's column block is Sea Mist `#CDD8DB` with Midnight text, because no text is readable enough on Lost's gray-blue. The name is always there: Marigold and Coral are too close to tell apart by color alone.
 - Charts: one scale each, hairline grid, no gradients, labels in Midnight. Sea Green, Marigold and Coral are under 3 to 1 against white, so a thin line in one of them uses its darker shade, and a bar in one has its value beside it. Each chart has a tooltip, which the keyboard can reach too, and a table view of its figures.
 - No border on one edge of a panel, and no line across the top of a page. Gradients are avoided.
 - Shadows are soft and few: on a card being dragged, on dialogs and on menus.
@@ -275,7 +275,14 @@ Colors:
 
 ### Chosen look
 
-To be added once one of the three mockups in `docs/mockups/` is chosen, with the reasons.
+Mockup D (mockup 4), Stream with blocks: `docs/mockups/d-stream-blocks.html`, with `d-stream-blocks-dashboard.png` and `d-stream-blocks-pipeline.png` beside it.
+
+It's mockup A (mockup 1), Stream, with two parts of mockup B (mockup 2), Bold:
+
+- **Pipeline headings:** straight, equal, rounded blocks in the stage colors, in place of A's ribbon across the columns. It wasn't clear why the ribbon's pieces had different shapes.
+- **Open deals by stage:** B's panel, on the dashboard under the funnel. It replaces the small bars under A's ribbon, which showed the same figures.
+
+Why A: it's the closest to the brand and this spec, and its ribbon shows at a glance how far deals get.
 
 ## Not in this version
 
