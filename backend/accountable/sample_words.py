@@ -1,0 +1,179 @@
+"""Names and texts for the sample data. Every company and person is invented (S4)."""
+
+# name, industry, website, notes
+ORGANIZATIONS = [
+    ("Upland Water", "Utilities", "uplandwater.example", "Regional water supplier. Buys through a yearly framework."),
+    ("Juniper Retail Group", "Retail", "juniperretail.example", "Forty stores and a growing online shop."),
+    ("Brightwater Dental Group", "Healthcare", "brightwaterdental.example", "Eleven practices, run from one head office."),
+    ("Eastbrook Schools", "Education", "eastbrookschools.example", "Six schools. Projects have to fit around term dates."),
+    ("Verity Accounting", "Professional services", "verityaccounting.example", None),
+    ("Cedar Row Hotels", "Hospitality", "cedarrow.example", "Nine hotels. Every site manager has a say."),
+    ("Pinecrest Farms", "Agriculture", "pinecrestfarms.example", None),
+    ("Fenwick Insurance", "Financial services", "fenwickinsurance.example", "Security reviews take about three weeks."),
+    ("Dunmore Legal", "Professional services", "dunmorelegal.example", "Partners meet on the first Monday of the month."),
+    ("Marlow Textiles", "Manufacturing", "marlowtextiles.example", None),
+    ("Saltmarsh Marine", "Transport", "saltmarshmarine.example", "Boatyards on two coasts with patchy connections."),
+    ("Quillon Publishing", "Media", "quillon.example", None),
+    ("Redfern Motors", "Retail", "redfernmotors.example", "Family business. The owner signs everything."),
+    ("Tamsin Cosmetics", "Retail", "tamsin.example", "Moving from resellers to selling directly."),
+    ("Oakline Property", "Real estate", "oaklineproperty.example", None),
+    ("Calloway Foods", "Manufacturing", "callowayfoods.example", "Two plants on different systems."),
+    ("Kestrel Aviation Parts", "Transport", "kestrelparts.example", "Ships spare parts worldwide, around the clock."),
+    ("Alder & Pike Logistics", "Transport", "alderpike.example", "Our longest customer. Open to being a reference."),
+    ("Halden Pharma", "Healthcare", "haldenpharma.example", "Strict on validation. Allow time for paperwork."),
+    ("Larkfield Credit Union", "Financial services", "larkfield.example", "The board approves anything over $50,000."),
+    ("Corvane Energy", "Utilities", "corvane.example", None),
+    ("Granite Peak Builders", "Construction", "granitepeak.example", "Crews work from phones on site."),
+    ("Newhaven Clinics", "Healthcare", "newhavenclinics.example", "Expanding to three more towns."),
+    ("Ironleaf Manufacturing", "Manufacturing", "ironleaf.example", None),
+]
+
+CONTACTS = [
+    "Marcus Webb", "Priya Nair", "Wen Zhao", "Elena Rossi", "Samuel Okafor", "Hannah Lindqvist",
+    "Diego Alvarez", "Fatima Rahman", "Owen Gallagher", "Mei Tanaka", "Laura Whitfield", "Anton Petrov",
+    "Grace Mbeki", "Julian Sorel", "Nadia Haddad", "Thomas Brandt", "Chloe Bennett", "Rafael Costa",
+    "Ingrid Solberg", "Kwame Asante", "Olivia Hartley", "Daniel Kim", "Sofia Marin", "Peter Novak",
+    "Amara Diallo", "Henry Calder", "Yuki Mori", "Isabel Fuentes", "Callum Reid", "Leila Farouk",
+    "Victor Almeida", "Rosa Delgado", "Edwin Park", "Maya Krishnan", "Simon Thorne", "Beatriz Lopes",
+    "Noah Fischer", "Tessa Vandermeer", "Ibrahim Sesay", "Claire Dubois", "Adam Kowalski", "Jasmine Boyd",
+    "Luis Herrera", "Freya Nilsen", "Martin Keane", "Anita Desai", "George Papadakis", "Zara Hussain",
+    "Patrick Moran", "Emily Stroud", "Hugo Lemaire", "Dina Mansour", "Keith Barlow", "Naomi Feld",
+    "Oscar Jensen", "Ruth Abara", "Felix Wagner", "Tara Quinn", "Gavin Holt", "Monica Reyes",
+]
+
+JOB_TITLES = [
+    "IT Director", "Operations Manager", "Head of IT", "Finance Director", "IT Manager", "Chief Operating Officer",
+    "Procurement Manager", "Systems Manager", "Managing Director", "Office Manager", "Head of Operations", "Project Manager",
+]
+
+AREA_CODES = ["206", "303", "312", "404", "415", "503", "617", "720", "808", "919"]
+
+# name, lowest and highest value in thousands of dollars
+SERVICES = [
+    ("Cloud migration", 60, 130),
+    ("Data warehouse", 75, 150),
+    ("ERP integration", 70, 140),
+    ("Customer portal", 45, 95),
+    ("Mobile app", 55, 98),
+    ("Managed support", 30, 90),
+    ("Identity and access", 40, 65),
+    ("Network refresh", 28, 75),
+    ("Device rollout", 35, 70),
+    ("Order tracking", 40, 72),
+    ("Booking system", 30, 60),
+    ("Inventory system", 35, 60),
+    ("Field app", 45, 90),
+    ("Case management", 40, 70),
+    ("Reporting dashboard", 18, 40),
+    ("API integration", 25, 48),
+    ("Payroll integration", 20, 40),
+    ("Security audit", 15, 50),
+    ("Penetration test", 12, 32),
+    ("Security training", 6, 16),
+    ("Backup and recovery", 14, 32),
+    ("Email migration", 10, 30),
+    ("Phone system", 12, 35),
+    ("Help desk setup", 15, 38),
+    ("Website rebuild", 12, 40),
+    ("Data cleanup", 5, 14),
+]
+
+# What happened while a deal was at each stage: type and description.
+ON_DEALS = {
+    "new": [
+        ("call", "First call, keen to start soon"),
+        ("email", "Asked what the work would involve and how long it takes"),
+        ("note", "Referred by another customer"),
+        ("call", "Talked through what they have now and what breaks"),
+        ("email", "Sent an overview and two case studies"),
+        ("note", "Their current supplier's contract is ending"),
+        ("call", "Introduced the team and agreed next steps"),
+    ],
+    "qualified": [
+        ("note", "Budget is approved for this year"),
+        ("call", "Met the IT manager and the finance lead"),
+        ("email", "Sent the agenda for the workshop"),
+        ("note", "Wants it running before the busy season"),
+        ("call", "Confirmed who makes the decision"),
+        ("email", "Returned the security questionnaire"),
+    ],
+    "proposal": [
+        ("email", "Sent the proposal"),
+        ("call", "Walked through the proposal with the team"),
+        ("note", "Asked for a smaller first phase"),
+        ("email", "Answered their questions about hosting"),
+        ("call", "They like the plan, price is the open question"),
+    ],
+    "negotiation": [
+        ("call", "Talked through payment terms"),
+        ("email", "Sent the revised proposal"),
+        ("note", "Legal asked for two changes to the contract"),
+        ("call", "Agreed the scope of the first phase"),
+        ("email", "Sent the final contract for signing"),
+    ],
+    "won": [
+        ("call", "Agreed to sign this week"),
+        ("email", "Signed contract received"),
+        ("note", "Handed over to the project team"),
+    ],
+    "lost": [
+        ("call", "They chose another supplier"),
+        ("email", "Budget was moved to another project"),
+        ("note", "Decided to keep the system they have"),
+        ("call", "Project put on hold for now"),
+    ],
+}
+
+# What still has to be done, for deals at each open stage.
+TO_DO_ON_DEALS = {
+    "new": [
+        ("call", "Book a first workshop"),
+        ("email", "Share two case studies"),
+        ("call", "Find out who signs off the budget"),
+        ("email", "Send the company overview"),
+        ("note", "Look up their current supplier before the next call"),
+        ("call", "Ask how many sites are involved"),
+    ],
+    "qualified": [
+        ("email", "Send new dates for the demo"),
+        ("call", "Discuss hosting options"),
+        ("note", "Prepare pricing for the extra sites"),
+        ("email", "Send the security questionnaire"),
+        ("call", "Check the site survey is booked"),
+        ("email", "Send the training plan"),
+    ],
+    "proposal": [
+        ("call", "Review the proposal with the board"),
+        ("email", "Send the revised device list"),
+        ("call", "Call back about the quote"),
+        ("note", "Check references before the next call"),
+        ("email", "Introduce the project lead"),
+    ],
+    "negotiation": [
+        ("call", "Go through the contract comments"),
+        ("call", "Agree the start date and payment terms"),
+        ("email", "Send the updated payment schedule"),
+        ("call", "Final call before signing"),
+        ("note", "Confirm the delivery team"),
+    ],
+}
+
+ON_CONTACTS = [
+    ("note", "Met at the spring trade show"),
+    ("call", "Asked for our price list"),
+    ("email", "Sent our newsletter sign-up and a short introduction"),
+    ("note", "Moving to a bigger role next quarter"),
+    ("call", "Happy with the last project"),
+    ("email", "Shared a guide to planning a migration"),
+    ("note", "Prefers a call to an email"),
+    ("call", "Not ready yet, asked us to check in again"),
+    ("email", "Thanked us for the quick help last week"),
+    ("note", "Runs the monthly IT meeting"),
+    ("call", "Interested in security training for the team"),
+]
+
+TO_DO_ON_CONTACTS = [
+    ("call", "Ask who signs off the budget"),
+    ("email", "Send the invitation to the open day"),
+    ("call", "Check in about next year's plans"),
+]

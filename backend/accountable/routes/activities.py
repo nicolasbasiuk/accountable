@@ -1,0 +1,56 @@
+from datetime import date
+from typing import Literal
+
+from fastapi import APIRouter
+from pydantic import AwareDatetime, BaseModel, model_validator
+
+from accountable import activities
+from accountable.errors import Invalid
+from accountable.routes.checks import EXACT, RecordId, RequiredText
+from accountable.tables import ACTIVITY_TYPES
+
+router = APIRouter(prefix="/api/activities")
+
+
+class ActivityEdit(BaseModel):
+    """The record it was logged on isn't here, so it can't be changed (A2)."""
+
+    model_config = EXACT
+    type: Literal[ACTIVITY_TYPES] = "note"
+    description: RequiredText = ""
+    happened_at: AwareDatetime = None
+    follow_up_on: date | None = None
+    done: bool = False
+
+
+class ActivityAdd(BaseModel):
+    model_config = EXACT
+    type: Literal[ACTIVITY_TYPES]
+    description: RequiredText
+    happened_at: AwareDatetime | None = None
+    follow_up_on: date | None = None
+    contact_id: RecordId | None = None
+    deal_id: RecordId | None = None
+
+    @model_validator(mode="after")
+    def on_one_record(self):
+        if (self.contact_id is None) == (self.deal_id is None):
+            raise Invalid({"deal_id": "Choose a contact or a deal."})
+        return self
+
+
+@router.post("", status_code=201)
+def add_activity(body: ActivityAdd):
+    return {"id": activities.add(body.model_dump())}
+
+
+@router.patch("/{activity_id}")
+def edit_activity(activity_id: RecordId, body: ActivityEdit):
+    activities.edit(activity_id, body.model_dump(exclude_unset=True))
+    return {"id": activity_id}
+
+
+@router.delete("/{activity_id}")
+def delete_activity(activity_id: RecordId):
+    activities.delete(activity_id)
+    return {"id": activity_id}
