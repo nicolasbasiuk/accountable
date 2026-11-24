@@ -155,7 +155,7 @@ None are open. The answers:
 - **Q2** Everything can be done with the keyboard, focus is always visible, and every control has a name a screen reader can read.
 - **Q3** Text contrast is at least 4.5, except the brand's white on Cerulean and Raspberry, which is always semi-bold and at least 14 pixels. Color is never the only sign of anything.
 - **Q4** Motion is short, and off when the computer asks for reduced motion.
-- **Q5** No errors in the browser's console on any screen or action.
+- **Q5** No errors in the browser's console on any screen or action, except the one Chrome writes itself when a request fails: a record that's been deleted, a conflict, a failed save or a server that can't be reached.
 
 ## Design
 
