@@ -58,8 +58,9 @@ function Item({ followUp, today }: { followUp: FollowUp; today: string }) {
       <span className="text-sm wrap-anywhere text-muted">
         <EntryRecordLink record={followUp.record} />
       </span>
-      <span className="justify-self-end">
-        {late > 0 ? <span className="tag"><Count amount={late} word="day" /></span> : <time dateTime={followUp.follow_up_on} className="num text-xs">{due(followUp.follow_up_on, today)}</time>}
+      <span className="justify-self-end text-right">
+        <time dateTime={followUp.follow_up_on} className="num block text-xs">{due(followUp.follow_up_on, today)}</time>
+        {late > 0 && <span className="tag mt-1"><Count amount={late} word="day" /></span>}
       </span>
     </li>
   )

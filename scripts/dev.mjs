@@ -22,6 +22,14 @@ function keep(name, child) {
   return child
 }
 
+/** Whether a half is ready. If it never is, says which and closes. One that stopped has been named already. */
+async function ready(name, url, child) {
+  if (await waitFor(url, child)) return !closing // Stopped meanwhile, there must be no other half to leave behind.
+  if (!closing) console.error(`The ${name} wasn't ready within a minute, so Accountable is closing.`)
+  await close(1)
+  return false
+}
+
 await main(async () => {
   checkVersions()
   await install()
@@ -34,9 +42,8 @@ await main(async () => {
   for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP']) process.on(signal, () => void close(0))
 
   const backend = keep('backend', startBackend(API_PORT))
-  if (!(await waitFor(`http://127.0.0.1:${API_PORT}/api/health`, backend))) return close(1)
-  if (closing) return // Stopped meanwhile, so there must be no other half to leave behind.
+  if (!(await ready('backend', `http://127.0.0.1:${API_PORT}/api/health`, backend))) return
   const frontend = keep('frontend', startFrontend())
-  if (!(await waitFor(`http://127.0.0.1:${WEB_PORT}/`, frontend))) return close(1)
-  if (!closing) console.log(`Accountable is running. Open http://localhost:${WEB_PORT} in your browser. Press Ctrl+C here to stop it.`)
+  if (!(await ready('frontend', `http://127.0.0.1:${WEB_PORT}/`, frontend))) return
+  console.log(`Accountable is running. Open http://localhost:${WEB_PORT} in your browser. Press Ctrl+C here to stop it.`)
 })

@@ -1,7 +1,7 @@
 import path from 'node:path'
 import type { ChildProcess } from 'node:child_process'
 import { ROOT, startBackend, startFrontend, stop, waitFor } from '../scripts/lib.mjs'
-import { API_PORT, api, CONSOLE, DATABASE, dialog, expect, open, panel, rows, test, TODAY } from './support'
+import { API_PORT, api, CONSOLE, DATABASE, dialog, expect, open, panel, pickStage, rows, test, TODAY } from './support'
 
 const SECTIONS = ['Dashboard', 'Organizations', 'Contacts', 'Deals', 'Pipeline']
 
@@ -103,6 +103,30 @@ test('without the internet, pages still load and save', async ({ page }) => {
   await expect(page.getByRole('status')).toHaveText('61 contacts')
 })
 
+test('another site on this computer gets no permission', async ({ request }) => {
+  const file = `/@fs/${ROOT.replaceAll('\\', '/').replace(/^\//, '')}/package.json`
+  const permissions = (headers: Record<string, string>) => Object.keys(headers).filter((name) => name.startsWith('access-control'))
+  for (const origin of ['http://localhost:3000', 'http://other.localhost:3000', 'http://127.0.0.1:3000', 'https://evil.example']) {
+    for (const address of ['/api/contacts', file]) {
+      const answer = await request.get(address, { headers: { origin } })
+      expect(permissions(answer.headers()), `${address} for ${origin}`).toEqual([])
+    }
+    for (const method of ['POST', 'PATCH', 'DELETE']) {
+      const asked = await request.fetch('/api/contacts/1', { method: 'OPTIONS', headers: { origin, 'access-control-request-method': method } })
+      expect(asked.ok(), `${method} for ${origin}`).toBe(false)
+      expect(permissions(asked.headers()), `${method} for ${origin}`).toEqual([])
+    }
+  }
+})
+
+test('no site can open files in an editor', async ({ request }) => {
+  // Vite does that for any site that asks. No file is named here, so nothing opens even if it still does.
+  for (const address of ['/__open-in-editor', '/__open-in-editor/', '/__OPEN-IN-EDITOR']) {
+    const answer = await request.get(address, { headers: { origin: 'https://evil.example' } })
+    expect(answer.status(), address).toBe(404)
+  }
+})
+
 test.describe('when the server stops', () => {
   const ports = { web: 5274, api: 8101 }
   const env = {
@@ -116,8 +140,8 @@ test.describe('when the server stops', () => {
   let backend: ChildProcess
   let frontend: ChildProcess
 
-  async function runBackend() {
-    backend = startBackend(ports.api, { env }) as ChildProcess
+  async function runBackend(today = TODAY) {
+    backend = startBackend(ports.api, { env: { ...env, ACCOUNTABLE_TODAY: today } }) as ChildProcess
     expect(await waitFor(`http://127.0.0.1:${ports.api}/api/health`, backend)).toBe(true)
   }
 
@@ -162,6 +186,24 @@ test.describe('when the server stops', () => {
     await expect(page.getByRole('status')).toHaveText('96 deals')
   })
 
+  test('going back to a page that was already open says so too', async ({ page, problems }) => {
+    problems.expect(CONSOLE.unreachable)
+    await open(page, `http://localhost:${ports.web}/organizations`)
+    await expect(rows(page)).toHaveCount(24)
+    await page.getByRole('navigation').getByRole('link', { name: 'Contacts' }).click()
+    await expect(page.getByRole('status')).toHaveText('60 contacts')
+
+    await stop(backend)
+    await page.getByRole('navigation').getByRole('link', { name: 'Organizations' }).click()
+    await expect(page.getByRole('alert')).toContainText("The server can't be reached. What you see may be out of date.")
+    await expect(rows(page)).toHaveCount(24)
+
+    await runBackend()
+    await page.getByRole('button', { name: 'Try again' }).click()
+    await expect(page.getByRole('alert')).toHaveCount(0)
+    await expect(rows(page)).toHaveCount(24)
+  })
+
   test('a save that cannot reach it keeps what was entered', async ({ page, problems }) => {
     problems.expect(CONSOLE.unreachable)
     await open(page, `http://localhost:${ports.web}/contacts/1`)
@@ -173,5 +215,27 @@ test.describe('when the server stops', () => {
     await runBackend()
     await dialog(page).getByRole('button', { name: 'Save changes' }).click()
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Marcus Webster')
+  })
+
+  test('a screen left open past midnight follows the new day', async ({ page }) => {
+    await page.clock.install()
+    await open(page, `http://localhost:${ports.web}/deals`)
+    const late = async () => (await page.locator('tbody .tag').allInnerTexts()).map((text) => Number(text.match(/\d+/)![0])).sort((a, b) => a - b)
+    await expect.poll(late).toEqual([4, 5, 7, 11])
+
+    // Started again on the next day, which is all that a page can see of midnight. It keeps the focus, and nothing is saved.
+    await stop(backend)
+    await runBackend('2026-11-25')
+    await page.clock.fastForward('01:00')
+    await expect.poll(late).toEqual([5, 6, 8, 12])
+
+    const row = rows(page).filter({ hasText: 'Late 5 days' })
+    const name = (await row.getByRole('link').first().innerText()).trim()
+    await row.getByRole('button', { name: `Edit ${name}` }).click()
+    await pickStage(dialog(page), page, 'Won')
+    await expect(dialog(page).getByLabel('Close date')).toHaveValue('2026-11-25')
+    await dialog(page).getByRole('button', { name: 'Save changes' }).click()
+    await expect(dialog(page)).toBeHidden()
+    await expect.poll(late).toEqual([6, 8, 12])
   })
 })

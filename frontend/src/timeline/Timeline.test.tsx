@@ -1,7 +1,7 @@
 import { QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router'
+import { createMemoryRouter, RouterProvider } from 'react-router'
 import { beforeEach, expect, test, vi } from 'vitest'
 import { configQuery, type Config } from '../shared/config'
 import { createQueryClient } from '../shared/queryClient'
@@ -48,11 +48,10 @@ async function show(area: Area, id: number, list = entries) {
   })
   const client = createQueryClient()
   client.setQueryData(configQuery.queryKey, config)
+  const timeline = <Timeline area={area} id={id} on={area === 'deals' ? { deal_id: id } : area === 'contacts' ? { contact_id: id } : undefined} />
   render(
     <QueryClientProvider client={client}>
-      <MemoryRouter>
-        <Timeline area={area} id={id} on={area === 'deals' ? { deal_id: id } : area === 'contacts' ? { contact_id: id } : undefined} />
-      </MemoryRouter>
+      <RouterProvider router={createMemoryRouter([{ path: '*', element: timeline }])} />
     </QueryClientProvider>,
   )
   if (list.length) await screen.findAllByRole('listitem')
@@ -79,8 +78,14 @@ test("an entry of another record names it and links to it", async () => {
 
 test('an organization names the record of every entry', async () => {
   await show('organizations', 1)
-  expect(screen.getAllByRole('link')).toHaveLength(entries.length)
-  expect(within(item('Call 1')).getByRole('link', { name: 'Cloud migration' })).toHaveAttribute('href', '/deals/7')
+  for (const entry of entries) {
+    const listed = within(item(entry.kind === 'activity' ? entry.description : 'Moved from Proposal to Negotiation'))
+    const { kind, id, name, organization } = entry.record
+    expect(listed.getByRole('link', { name })).toHaveAttribute('href', `/${kind}s/${id}`)
+    // Its organization is a record too, so its name is also a link.
+    if (organization) expect(listed.getByRole('link', { name: organization.name })).toHaveAttribute('href', `/organizations/${organization.id}`)
+    expect(listed.getAllByRole('link')).toHaveLength(organization ? 2 : 1)
+  }
   expect(item('Call 1')).toHaveTextContent('Cloud migration, Upland Water')
   expect(screen.queryByRole('button', { name: 'Log activity' })).toBeNull()
 })
@@ -143,6 +148,18 @@ test('a description is required', async () => {
   await user.click(screen.getByRole('button', { name: 'Log activity' }))
   await user.click(await within(await screen.findByRole('dialog')).findByRole('button', { name: 'Log activity' }))
   expect(screen.getByRole('textbox', { name: 'Description' })).toHaveAccessibleDescription('Enter a description.')
+  expect(changes).toEqual([])
+})
+
+test.each([/Follow up on/, /Happened/])('a year typed with two digits is refused: %s', async (label) => {
+  const user = await show('deals', 7)
+  await user.click(screen.getByRole('button', { name: 'Log activity' }))
+  const form = within(await screen.findByRole('dialog'))
+  await user.type(await form.findByRole('textbox', { name: 'Description' }), 'Sent the plan')
+  const field = form.getByLabelText(label)
+  fireEvent.change(field, { target: { value: field.getAttribute('type') === 'date' ? '0026-11-11' : '0026-11-11T10:00' } })
+  await user.click(form.getByRole('button', { name: 'Log activity' }))
+  expect(form.getByLabelText(label)).toHaveAccessibleDescription('Enter the year with four digits, such as 2026.')
   expect(changes).toEqual([])
 })
 

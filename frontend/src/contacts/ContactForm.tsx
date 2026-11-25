@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { useRef } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { organizationsQuery } from '../organizations/queries'
 import { changed, required } from '../shared/checks'
@@ -27,7 +28,9 @@ export function ContactForm({ contact, organizationId, onClosed }: Props) {
     organization_id: (contact ? contact.organization?.id : organizationId) ?? null,
     status: (contact?.status ?? 'lead') as Status,
   }
-  const form = useForm({ defaultValues })
+  // The form keeps what it started with, also when the contact is loaded again behind it.
+  const first = useRef(defaultValues).current
+  const form = useForm({ defaultValues: first })
   const { errors } = form.formState
   if (organizations.isPending) return null
   const items = (organizations.data ?? []).map(({ id, name }) => ({ value: id, label: name }))
@@ -38,7 +41,7 @@ export function ContactForm({ contact, organizationId, onClosed }: Props) {
       submit={contact ? 'Save changes' : 'Add contact'}
       form={form}
       onSave={async (values) => {
-        await save.mutateAsync(contact ? changed(defaultValues, values) : values)
+        await save.mutateAsync(contact ? changed(first, values) : values)
         if (!contact) showMessage(`Added ${values.name.trim()}.`)
       }}
       onClosed={onClosed}

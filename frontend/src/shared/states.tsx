@@ -1,7 +1,7 @@
 // What a screen shows when there's nothing, or something went wrong (G4, G5).
-import { useQueryClient, type UseQueryResult } from '@tanstack/react-query'
+import { notifyManager, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
 import { CircleAlert } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { useCallback, useSyncExternalStore, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { explain, isNotFound } from './client'
 import { Button } from './buttons'
@@ -32,8 +32,22 @@ export function ErrorState({ error }: { error: unknown }) {
   )
 }
 
-/** Above a page that already shows something. */
-export function OutOfDate({ error }: { error: unknown }) {
+/** Why something that's on screen couldn't be loaded again, if so. A record that has gone gets its own page instead. */
+function useRefreshError(): Error | null {
+  const queries = useQueryClient().getQueryCache()
+  return useSyncExternalStore(
+    useCallback((changed) => queries.subscribe(notifyManager.batchCalls(changed)), [queries]),
+    () => {
+      const failed = queries.findAll({ type: 'active' }).find(({ state }) => state.data !== undefined && state.error && !isNotFound(state.error))
+      return failed?.state.error ?? null
+    },
+  )
+}
+
+/** Above a page that shows something it couldn't load again. */
+export function OutOfDate() {
+  const error = useRefreshError()
+  if (!error) return null
   return (
     <div role="alert" className="mx-5 mt-5 flex items-center gap-4 rounded-control bg-white px-5 py-3">
       <CircleAlert size={20} aria-hidden className="text-raspberry" />

@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto'
 import { existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import net from 'node:net'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { isFree, ROOT, stop, waitFor } from '../scripts/lib.mjs'
 import { API_PORT, APP_ENV, DATABASE, expect, seed, test, TODAY } from './support'
 
@@ -106,6 +107,22 @@ test('stopped while it is still starting, it leaves nothing running', async () =
   run.child.kill('SIGTERM')
   await run.ended
   expect(await waitFor('http://127.0.0.1:5276/', undefined, 2), 'a frontend left behind').toBe(false)
+  expect(await isFree(8103)).toBe(true)
+})
+
+test('a half that never gets ready is named, and nothing keeps running', async () => {
+  test.skip(WINDOWS, 'The stand-in for uv is a shell script.')
+  const folder = mkdtempSync(path.join(path.dirname(DATABASE), 'never-ready-'))
+  const uv = spawnSync('which', ['uv'], { encoding: 'utf8' }).stdout.trim()
+  writeFileSync(path.join(folder, 'uv'), `#!/bin/sh\nif [ "$1" = run ]; then exec sleep 300; fi\nexec "${uv}" "$@"\n`, { mode: 0o755 })
+  // A clock that's 60 times as fast, so the minute it waits takes a second.
+  writeFileSync(path.join(folder, 'clock.mjs'), 'const now = Date.now; const start = now(); Date.now = () => start + (now() - start) * 60')
+  const run = dev(5276, 8103, 'halves', {
+    PATH: `${folder}${path.delimiter}${process.env.PATH}`,
+    NODE_OPTIONS: `--import=${pathToFileURL(path.join(folder, 'clock.mjs'))}`,
+  })
+  expect(await run.ended).toBe(1)
+  expect(run.output).toContain("The backend wasn't ready within a minute, so Accountable is closing.")
   expect(await isFree(8103)).toBe(true)
 })
 

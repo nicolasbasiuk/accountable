@@ -1,6 +1,6 @@
 // What the deal form fills in, and what it sends (D2, D3).
 import type { Contact } from '../contacts/queries'
-import { changed } from '../shared/checks'
+import { changed, checkYear } from '../shared/checks'
 import { stageInfo, type Config, type Stage } from '../shared/config'
 import type { PickerGroup } from '../shared/RecordPicker'
 
@@ -66,6 +66,8 @@ export function checkProbability(text: string): true | string {
 
 export function checkCloseDate(config: Config, stage: Stage, closeDate: string): true | string {
   if (!closeDate) return 'Enter a close date.'
+  const year = checkYear(closeDate)
+  if (year !== true) return year
   const { open, name } = stageInfo(config, stage)
   return open || closeDate <= config.today || `A ${name.toLowerCase()} deal's close date can't be after today.`
 }

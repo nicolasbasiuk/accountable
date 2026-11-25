@@ -212,6 +212,25 @@ def test_the_time_cannot_be_in_the_future(api):
     assert api.patch(f"/activities/{activity}", {"happened_at": "2026-11-26T00:00:00Z"}, 422)["fields"] == message
 
 
+@pytest.mark.parametrize("moment", ["0001-01-01T00:00:00+14:00", "9999-12-31T23:59:59-12:00"])
+def test_a_time_beyond_the_calendar_is_refused(api, moment):
+    contact = api.contact()
+    body = {"type": "note", "description": "A", "contact_id": contact, "happened_at": moment}
+    assert set(api.post("/activities", body, 422)["fields"]) == {"happened_at"}
+    activity = api.activity(contact_id=contact)
+    assert set(api.patch(f"/activities/{activity}", {"happened_at": moment}, 422)["fields"]) == {"happened_at"}
+
+
+@pytest.mark.parametrize("field, value", [("follow_up_on", "0026-12-01"), ("happened_at", "0026-11-11T10:00:00Z")])
+def test_a_year_typed_with_two_digits_is_refused(api, field, value):
+    """A browser makes 0026 of 26."""
+    contact = api.contact()
+    message = {field: "Enter the year with four digits, such as 2026."}
+    assert api.post("/activities", {"type": "note", "description": "A", "contact_id": contact, field: value}, 422)["fields"] == message
+    activity = api.activity(contact_id=contact)
+    assert api.patch(f"/activities/{activity}", {field: value}, 422)["fields"] == message
+
+
 def test_the_time_is_now_unless_given(api):
     """A1"""
     contact = api.contact()

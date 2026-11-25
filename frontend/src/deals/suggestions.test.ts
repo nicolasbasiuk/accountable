@@ -115,5 +115,7 @@ describe('checks', () => {
     expect(checkCloseDate(config, 'won', '2026-11-25')).toBe("A won deal's close date can't be after today.")
     expect(checkCloseDate(config, 'lost', '2026-11-25')).toBe("A lost deal's close date can't be after today.")
     expect(checkCloseDate(config, 'new', '')).toBe('Enter a close date.')
+    // Chrome makes 0026 of a year typed as 26.
+    for (const stage of ['new', 'won'] as const) expect(checkCloseDate(config, stage, '0026-11-11')).toBe('Enter the year with four digits, such as 2026.')
   })
 })

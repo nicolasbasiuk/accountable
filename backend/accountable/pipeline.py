@@ -111,17 +111,36 @@ def undo(deal_id: int, stage_change_id: int) -> None:
             .where(deals.c.id == deal_id)
             .values(stage=latest.from_stage, probability=latest.from_probability, close_date=latest.from_close_date)
         )
-        if latest.from_status:
-            # Unless it was changed by hand since, which is kept.
-            connection.execute(
-                update(contacts)
-                .where(contacts.c.id == latest.contact_id, contacts.c.status == "customer")
-                .values(status=latest.from_status)
-            )
+        if latest.from_status and latest.contact_id:
+            _put_status_back(connection, latest)
         number_column(connection, latest.to_stage)
         column = [other for other in _column(connection, latest.from_stage) if other != deal_id]
         _number(connection, _with(column, deal_id, latest.from_position))
         connection.execute(delete(stage_changes).where(stage_changes.c.id == latest.id))
+
+
+def _put_status_back(connection: Connection, win: Row) -> None:
+    later_win = connection.execute(
+        select(stage_changes)
+        .where(stage_changes.c.contact_id == win.contact_id, stage_changes.c.to_stage == "won", stage_changes.c.id > win.id)
+        .order_by(stage_changes.c.id)
+        .limit(1)
+    ).first()
+    if not later_win:
+        # Unless it was changed by hand since, which is kept.
+        connection.execute(
+            update(contacts).where(contacts.c.id == win.contact_id, contacts.c.status == "customer").values(status=win.from_status)
+        )
+    elif not later_win.from_status:
+        # Without this win, the later one would have made them a customer, so undoing that one puts the status back.
+        connection.execute(update(stage_changes).where(stage_changes.c.id == later_win.id).values(from_status=win.from_status))
+
+
+def add_as_won(connection: Connection, contact_id: int | None) -> None:
+    """C4. Adding a deal can't be undone, so its contact stays a customer when an earlier win is undone."""
+    make_customer(connection, contact_id)
+    if contact_id:
+        connection.execute(update(stage_changes).where(stage_changes.c.contact_id == contact_id).values(from_status=None))
 
 
 def make_customer(connection: Connection, contact_id: int | None) -> str | None:

@@ -1,6 +1,7 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useForm } from 'react-hook-form'
+import { createMemoryRouter, RouterProvider } from 'react-router'
 import { expect, test, vi } from 'vitest'
 import { ApiError } from './client'
 import { TextField } from './fields'
@@ -21,8 +22,14 @@ function Example({ onSave, onClosed }: { onSave: (values: Values) => Promise<unk
 
 function show(onSave = vi.fn(async (_values: Values) => {})) {
   const onClosed = vi.fn()
-  render(<Example onSave={onSave} onClosed={onClosed} />)
-  return { onSave, onClosed, user: userEvent.setup() }
+  const pages = [
+    { path: '/', element: <p>The page before</p> },
+    { path: '/form', element: <Example onSave={onSave} onClosed={onClosed} /> },
+  ]
+  const router = createMemoryRouter(pages, { initialEntries: ['/', '/form'], initialIndex: 1 })
+  render(<RouterProvider router={router} />)
+  const back = () => act(() => router.navigate(-1))
+  return { onSave, onClosed, back, user: userEvent.setup() }
 }
 
 const name = () => screen.getByRole('textbox', { name: 'Name' })
@@ -97,6 +104,48 @@ test.each(['the button', 'Escape'])('asks before losing changes, closed by %s', 
   await user.click(await screen.findByRole('button', { name: 'Discard changes' }))
   await waitFor(() => expect(onClosed).toHaveBeenCalledOnce())
   expect(onSave).not.toHaveBeenCalled()
+})
+
+/** Whether the browser is asked to ask before leaving Accountable. */
+const asksBeforeLeaving = () => !window.dispatchEvent(new Event('beforeunload', { cancelable: true }))
+
+test('asks before losing changes, going back', async () => {
+  const { user, back, onSave } = show()
+  expect(asksBeforeLeaving()).toBe(false)
+  await user.type(name(), ' Jr')
+  expect(asksBeforeLeaving()).toBe(true)
+
+  await back()
+  expect(await screen.findByRole('alertdialog')).toHaveTextContent('Discard your changes?')
+  await user.click(screen.getByRole('button', { name: 'Keep editing' }))
+  await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull())
+  expect(name()).toHaveValue('Priya Nair Jr')
+
+  await back()
+  await user.click(await screen.findByRole('button', { name: 'Discard changes' }))
+  expect(await screen.findByText('The page before')).toBeVisible()
+  expect(asksBeforeLeaving()).toBe(false)
+  expect(onSave).not.toHaveBeenCalled()
+})
+
+test('goes back at once when nothing was changed', async () => {
+  const { back } = show()
+  await back()
+  expect(await screen.findByText('The page before')).toBeVisible()
+})
+
+test('going back waits while it is being saved', async () => {
+  let finish = () => {}
+  const { user, back, onClosed } = show(vi.fn(() => new Promise<void>((resolve) => (finish = resolve))))
+  await user.type(name(), ' Jr')
+  await user.click(save())
+  await back()
+  expect(screen.queryByRole('alertdialog')).toBeNull()
+  expect(screen.getByRole('button', { name: 'Saving' })).toBeVisible()
+  finish()
+  await waitFor(() => expect(onClosed).toHaveBeenCalledOnce())
+  await back()
+  expect(await screen.findByText('The page before')).toBeVisible()
 })
 
 test('saves once, however often the button is pressed', async () => {

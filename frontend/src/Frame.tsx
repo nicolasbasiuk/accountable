@@ -1,8 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
 import { LayoutDashboard, Users } from 'lucide-react'
 import { NavLink, Outlet, ScrollRestoration } from 'react-router'
 import { DealsIcon, OrganizationsIcon, PipelineIcon } from './icons'
-import { configQuery } from './shared/config'
+import { useCurrentConfig } from './shared/config'
 import { Messages } from './shared/Messages'
 import { ErrorState, OutOfDate } from './shared/states'
 
@@ -15,7 +14,7 @@ const SECTIONS = [
 ]
 
 export function Frame() {
-  const config = useQuery(configQuery)
+  const config = useCurrentConfig()
   return (
     <Messages>
       <div className="grid min-h-screen grid-cols-[208px_minmax(0,1fr)]">
@@ -39,7 +38,7 @@ export function Frame() {
           </nav>
         </aside>
         <div className="min-w-0">
-          {config.data && config.error && <OutOfDate error={config.error} />}
+          {config.data && <OutOfDate />}
           {config.data ? <Outlet /> : config.error && <ErrorState error={config.error} />}
         </div>
       </div>

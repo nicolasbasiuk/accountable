@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 import pytest
@@ -131,6 +132,7 @@ def test_only_http_and_https_websites(api, website):
     ("probability", -1, "Enter a probability from 0 to 100."),
     ("probability", 101, "Enter a probability from 0 to 100."),
     ("close_date", "soon", "Enter a date."),
+    ("close_date", "0026-11-11", "Enter the year with four digits, such as 2026."),
     ("stage", "waiting", "Choose one of the options."),
     ("organization_id", 99, "This organization no longer exists."),
     ("contact_id", 99, "This contact no longer exists."),
@@ -150,6 +152,23 @@ def test_values_at_the_limits(api, value, probability):
 def test_a_contact_at_an_organization_that_has_gone(api):
     answer = api.post("/contacts", {"name": "Priya Nair", "organization_id": 99}, 422)
     assert answer["fields"] == {"organization_id": "This organization no longer exists."}
+
+
+@pytest.mark.parametrize("path, field", [
+    ("/organizations", "name"), ("/organizations", "website"), ("/organizations", "notes"),
+    ("/contacts", "name"), ("/contacts", "email"), ("/deals", "name"), ("/activities", "description"),
+])
+def test_text_that_cannot_be_saved(api, path, field):
+    """Half of a character, which JSON can hold but a database can't."""
+    whole = {
+        "/organizations": {"name": "A"},
+        "/contacts": {"name": "A"},
+        "/deals": {"name": "A", "value": 1, "close_date": "2026-11-24"},
+        "/activities": {"type": "note", "description": "A", "contact_id": api.contact()},
+    }[path]
+    body = json.dumps({**whole, field: "\ud800"})
+    answer = api.client.post(f"/api{path}", content=body, headers={"content-type": "application/json"})
+    assert (answer.status_code, set(answer.json()["fields"])) == (422, {field})
 
 
 def test_a_failed_check_saves_nothing(api):

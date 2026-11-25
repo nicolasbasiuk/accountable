@@ -173,6 +173,20 @@ test('a wrong value shows its problem', async ({ page }) => {
   await expect(dialog(page).getByLabel('Close date')).toHaveAccessibleDescription('Enter a close date.')
 })
 
+test('a year typed with two digits shows its problem', async ({ page }) => {
+  await open(page, '/deals')
+  await page.getByRole('button', { name: 'Add deal' }).click()
+  await dialog(page).getByLabel('Name').fill('Zebra system')
+  await dialog(page).getByLabel('Value').fill('1000')
+  await pickStage(dialog(page), page, 'Won')
+  await dialog(page).getByLabel('Close date').fill('0026-11-11') // What Chrome makes of 26.
+  await dialog(page).getByRole('button', { name: 'Add deal' }).click()
+  await expect(dialog(page).getByLabel('Close date')).toHaveAccessibleDescription('Enter the year with four digits, such as 2026.')
+  await dialog(page).getByLabel('Close date').fill('2026-11-11')
+  await dialog(page).getByRole('button', { name: 'Add deal' }).click()
+  await expect(page.getByRole('status')).toHaveText('97 deals')
+})
+
 test('delete from its page', async ({ page }) => {
   await open(page, '/deals/1')
   const { activities, follow_ups } = await api<{ activities: number; follow_ups: number }>(page, '/deals/1/deletion')

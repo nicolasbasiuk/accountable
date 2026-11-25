@@ -3,7 +3,7 @@ import { API_PORT, api, dialog, expect, open, panel, pickStage, test } from './s
 
 type Deal = { id: number; name: string; stage: string; value: number; probability: number; expected_revenue: number; close_date: string; days_late: number }
 type Amount = { value: number; deals: number }
-type Entry = { kind: string; id: number; description: string; at: string; record: { name: string; kind: string; id: number } }
+type Entry = { kind: string; id: number; description: string; at: string; record: { name: string; kind: string; id: number; organization: { id: number; name: string } | null } }
 type Dashboard = {
   months: (Amount & { month: string })[]
   funnel: (Amount & { stage: string; share: number | null })[]
@@ -120,6 +120,9 @@ test('follow-ups are in two groups, in order', async ({ page }) => {
     const texts = await region.getByRole('listitem').allInnerTexts()
     expect(texts.map((text) => text.split('\n')[0])).toEqual(group.map(({ description }) => description))
   }
+  for (const [index, { follow_up_on }] of overdue.entries()) {
+    await expect(panel(page, 'Overdue').getByRole('listitem').nth(index).locator('time')).toHaveText(`Nov ${Number(follow_up_on.slice(8))}, 2026`)
+  }
   await expect(panel(page, 'Overdue').getByRole('listitem').first()).toContainText('8 days')
   await expect(panel(page, 'Overdue').getByRole('listitem').last()).toContainText('1 day')
   await expect(panel(page, 'Due in the next 14 days').getByRole('listitem').first()).toContainText('Today')
@@ -151,8 +154,10 @@ test('recent activity is the newest ten, linked', async ({ page }) => {
   await expect(items).toHaveCount(10)
   for (const [index, { record }] of recent.entries()) {
     await expect(items.nth(index).getByRole('link', { name: record.name })).toHaveAttribute('href', `/${record.kind}s/${record.id}`)
+    const { organization } = record
+    if (organization) await expect(items.nth(index).getByRole('link', { name: organization.name })).toHaveAttribute('href', `/organizations/${organization.id}`)
   }
-  await items.first().getByRole('link').click()
+  await items.first().getByRole('link', { name: recent[0]!.record.name }).click()
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(recent[0]!.record.name)
 })
 

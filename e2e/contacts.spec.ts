@@ -1,4 +1,4 @@
-import { api, column, CONSOLE, dialog, expect, open, panel, pick, question, rows, search, test } from './support'
+import { API_PORT, api, column, CONSOLE, dialog, expect, open, panel, pick, question, rows, search, test } from './support'
 
 type Contact = { id: number; name: string; status: string; organization: { id: number; name: string } | null }
 
@@ -137,6 +137,24 @@ test('a wrong value shows its problem', async ({ page }) => {
   await dialog(page).getByRole('button', { name: 'Add contact' }).click()
   await expect(dialog(page).getByLabel('Name')).toHaveAccessibleDescription('Enter a name.')
   await expect(dialog(page).getByLabel('Email')).toHaveAccessibleDescription('Enter an email address, such as name@example.com.')
+})
+
+test('an edit sends only what was changed, also if the contact was changed elsewhere meanwhile', async ({ page }) => {
+  const people = await api<{ id: number; status: string }[]>(page, '/contacts')
+  const deals = await api<{ id: number; stage: string; contact: { id: number } | null }[]>(page, '/deals')
+  const deal = deals.find(({ stage, contact }) => stage === 'new' && people.some(({ id, status }) => id === contact?.id && status !== 'customer'))!
+  const contact = `/contacts/${deal.contact!.id}`
+  await open(page, contact)
+  await panel(page, 'Details').getByRole('button', { name: 'Edit' }).click()
+  await dialog(page).getByLabel('Phone').fill('(206) 555-0199')
+
+  await page.request.patch(`http://127.0.0.1:${API_PORT}/api/deals/${deal.id}`, { data: { stage: 'won' } })
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+  await expect(page.locator('section[aria-label=Details]')).toContainText('Customer')
+
+  await dialog(page).getByRole('button', { name: 'Save changes' }).click()
+  await expect(dialog(page)).toBeHidden()
+  expect(await api(page, contact)).toMatchObject({ phone: '(206) 555-0199', status: 'customer' })
 })
 
 test('a failed save shows a message, and the old value stays', async ({ page, problems }) => {

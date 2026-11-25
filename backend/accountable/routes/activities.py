@@ -1,15 +1,25 @@
-from datetime import date
-from typing import Literal
+from datetime import UTC, datetime
+from typing import Annotated, Literal
 
 from fastapi import APIRouter
-from pydantic import AwareDatetime, BaseModel, model_validator
+from pydantic import AfterValidator, AwareDatetime, BaseModel, model_validator
 
 from accountable import activities
 from accountable.errors import Invalid
-from accountable.routes.checks import EXACT, RecordId, RequiredText
+from accountable.routes.checks import EXACT, Day, RecordId, RequiredText, full_year, problem
 from accountable.tables import ACTIVITY_TYPES
 
 router = APIRouter(prefix="/api/activities")
+
+
+def _in_utc(value: datetime) -> datetime:
+    try:
+        return value.astimezone(UTC)
+    except OverflowError:  # In UTC it would be after the last year.
+        raise problem("Enter a date and time.") from None
+
+
+Moment = Annotated[AwareDatetime, AfterValidator(full_year), AfterValidator(_in_utc)]
 
 
 class ActivityEdit(BaseModel):
@@ -18,8 +28,8 @@ class ActivityEdit(BaseModel):
     model_config = EXACT
     type: Literal[ACTIVITY_TYPES] = "note"
     description: RequiredText = ""
-    happened_at: AwareDatetime = None
-    follow_up_on: date | None = None
+    happened_at: Moment = None
+    follow_up_on: Day | None = None
     done: bool = False
 
 
@@ -27,8 +37,8 @@ class ActivityAdd(BaseModel):
     model_config = EXACT
     type: Literal[ACTIVITY_TYPES]
     description: RequiredText
-    happened_at: AwareDatetime | None = None
-    follow_up_on: date | None = None
+    happened_at: Moment | None = None
+    follow_up_on: Day | None = None
     contact_id: RecordId | None = None
     deal_id: RecordId | None = None
 

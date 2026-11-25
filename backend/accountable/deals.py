@@ -28,7 +28,7 @@ def add(values: dict) -> int:
         deal_id = connection.execute(insert(deals).values(**values, position=0)).inserted_primary_key[0]
         pipeline.put_on_top(connection, stage, deal_id)
         if stage == "won":
-            pipeline.make_customer(connection, values.get("contact_id"))
+            pipeline.add_as_won(connection, values.get("contact_id"))
         return deal_id
 
 

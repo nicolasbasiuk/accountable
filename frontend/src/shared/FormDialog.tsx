@@ -1,6 +1,7 @@
 import { Dialog } from '@base-ui/react/dialog'
-import { useState, type FormEvent, type ReactNode } from 'react'
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import type { FieldValues, Path, UseFormReturn } from 'react-hook-form'
+import { useBeforeUnload, useBlocker } from 'react-router'
 import { Button } from './buttons'
 import { ApiError, explain } from './client'
 import { BACKDROP, DIALOG, Question, VIEWPORT } from './dialogs'
@@ -23,6 +24,16 @@ export function FormDialog<V extends FieldValues>({ title, submit, form, onSave,
   const [asking, setAsking] = useState(false)
   const [problem, setProblem] = useState('')
   const { isDirty, isSubmitting } = form.formState
+  const unsaved = open && isDirty
+
+  // Leaving the page closes the form too: with the browser's Back, or out of Accountable, where only the browser can ask.
+  const leaving = useBlocker(({ currentLocation, nextLocation }) => unsaved && currentLocation.pathname !== nextLocation.pathname)
+  useBeforeUnload((event) => {
+    if (unsaved) event.preventDefault()
+  })
+  useEffect(() => {
+    if (isSubmitting && leaving.state === 'blocked') leaving.reset() // Nothing closes it while it's being saved.
+  }, [isSubmitting, leaving])
 
   const save = form.handleSubmit(async (values) => {
     setProblem('')
@@ -54,6 +65,17 @@ export function FormDialog<V extends FieldValues>({ title, submit, form, onSave,
     else setOpen(false)
   }
 
+  function keepEditing() {
+    setAsking(false)
+    leaving.reset?.()
+  }
+
+  function discard() {
+    setAsking(false)
+    setOpen(false)
+    leaving.proceed?.()
+  }
+
   return (
     <Dialog.Root open={open} onOpenChange={(next) => !next && close()} onOpenChangeComplete={(next) => !next && onClosed()}>
       <Dialog.Portal>
@@ -79,19 +101,13 @@ export function FormDialog<V extends FieldValues>({ title, submit, form, onSave,
         </Dialog.Viewport>
       </Dialog.Portal>
       <Question
-        open={asking}
-        onClose={() => setAsking(false)}
+        open={asking || (leaving.state === 'blocked' && !isSubmitting)}
+        onClose={keepEditing}
         title="Discard your changes?"
         actions={
           <>
-            <Button onClick={() => setAsking(false)}>Keep editing</Button>
-            <Button
-              look="danger"
-              onClick={() => {
-                setAsking(false)
-                setOpen(false)
-              }}
-            >
+            <Button onClick={keepEditing}>Keep editing</Button>
+            <Button look="danger" onClick={discard}>
               Discard changes
             </Button>
           </>

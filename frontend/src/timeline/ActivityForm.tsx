@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useRef } from 'react'
 import { useForm } from 'react-hook-form'
-import { changed, required } from '../shared/checks'
+import { changed, checkYear, required } from '../shared/checks'
 import { configQuery, type Config } from '../shared/config'
 import { ChoiceField, DateField, TextArea } from '../shared/fields'
 import { fromField, toField } from '../shared/format'
@@ -40,6 +40,8 @@ function Shown({ activity, on, config, readAt, onClosed }: Props & { config: Con
 
   function checkTime(text: string): true | string {
     if (!text) return 'Enter a date and time.'
+    const year = checkYear(text)
+    if (year !== true) return year
     const serverNow = new Date(config.now).getTime() + Date.now() - readAt
     return new Date(text).getTime() <= serverNow || "This can't be in the future."
   }
@@ -74,7 +76,7 @@ function Shown({ activity, on, config, readAt, onClosed }: Props & { config: Con
         error={errors.happened_at?.message}
         {...form.register('happened_at', { validate: checkTime })}
       />
-      <DateField label="Follow up on" optional error={errors.follow_up_on?.message} {...form.register('follow_up_on')} />
+      <DateField label="Follow up on" optional error={errors.follow_up_on?.message} {...form.register('follow_up_on', { validate: checkYear })} />
     </FormDialog>
   )
 }

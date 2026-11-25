@@ -1,4 +1,4 @@
-import { api, column, dialog, expect, open, panel, pick, question, rows, search, test } from './support'
+import { API_PORT, api, column, dialog, expect, open, panel, pick, question, rows, search, test } from './support'
 
 type Organization = { id: number; name: string; contacts: number; open_value: number }
 
@@ -179,6 +179,63 @@ test("a change made in a second tab shows when this one gets the focus", async (
   // Playwright's tabs all think they're in front, so the browser's own event is sent by hand.
   await page.evaluate(() => window.dispatchEvent(new Event('focus')))
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Renamed elsewhere')
+})
+
+test('an edit sends only what was changed, also if the organization was changed elsewhere meanwhile', async ({ page }) => {
+  await open(page, '/organizations/1')
+  await panel(page, 'Details').getByRole('button', { name: 'Edit' }).click()
+  await dialog(page).getByLabel('Website').fill('upland.example')
+
+  await page.request.patch(`http://127.0.0.1:${API_PORT}/api/organizations/1`, { data: { notes: 'Written elsewhere.' } })
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+  await expect(page.locator('section[aria-label=Details]')).toContainText('Written elsewhere.')
+
+  await dialog(page).getByRole('button', { name: 'Save changes' }).click()
+  await expect(dialog(page)).toBeHidden()
+  expect(await api(page, '/organizations/1')).toMatchObject({ website: 'upland.example', notes: 'Written elsewhere.' })
+})
+
+test('going back, or leaving, with unsaved changes asks', async ({ page }) => {
+  await open(page, '/contacts')
+  await page.getByRole('navigation').getByRole('link', { name: 'Organizations' }).click()
+  await page.getByRole('button', { name: 'Add organization' }).click()
+  await dialog(page).getByLabel('Name').fill('Half entered')
+
+  await page.goBack()
+  await expect(question(page)).toContainText('Discard your changes?')
+  await expect(page).toHaveURL(/\/organizations$/)
+  await question(page).getByRole('button', { name: 'Keep editing' }).click()
+  await expect(dialog(page).getByLabel('Name')).toHaveValue('Half entered')
+
+  // Leaving the app altogether, which only the browser can ask about.
+  const asked = page.waitForEvent('dialog')
+  await page.evaluate(() => void setTimeout(() => location.reload()))
+  const leave = await asked
+  expect(leave.type()).toBe('beforeunload')
+  await leave.dismiss()
+  await expect(dialog(page).getByLabel('Name')).toHaveValue('Half entered')
+
+  await page.goBack()
+  await question(page).getByRole('button', { name: 'Discard changes' }).click()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Contacts')
+  await expect(dialog(page)).toBeHidden()
+})
+
+test('going back with nothing entered, or after saving, does not ask', async ({ page }) => {
+  await open(page, '/contacts')
+  await page.getByRole('navigation').getByRole('link', { name: 'Organizations' }).click()
+  await page.getByRole('button', { name: 'Add organization' }).click()
+  await page.goBack()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Contacts')
+
+  await page.getByRole('navigation').getByRole('link', { name: 'Organizations' }).click()
+  await page.getByRole('button', { name: 'Add organization' }).click()
+  await dialog(page).getByLabel('Name').fill('Entered')
+  await dialog(page).getByRole('button', { name: 'Add organization' }).click()
+  await expect(page.getByRole('status')).toHaveText('25 organizations')
+  await expect(dialog(page)).toBeHidden()
+  await page.goBack()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Contacts')
 })
 
 test('a contact picker in a form can be cleared', async ({ page }) => {

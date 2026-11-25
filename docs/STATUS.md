@@ -21,18 +21,47 @@ The data is in `data/accountable.db`, and the copies are in `data/backups/`. Git
 - Test, first part: `npm test` is in `AGENTS.md`. A stray `it.only` in a frontend test now fails it, as `test.only` already did in an end-to-end test.
 - Test, second part: the dashboard and pipeline were compared with mockup D using Playwright, and what differed was fixed: the two month charts, the section icons, the digits in late and overdue tags, and small sizes and gaps.
 
+## Review findings
+
+From two reviews of `mvp` against `main` with `docs/REVIEW.md`.
+
+The first. All are fixed. Each of 1 to 8 has a test that failed before its fix.
+
+| # | Kind | Finding | Rule | Fix |
+|---|---|---|---|---|
+| 1 | Important | Other sites on this computer could read and change the data, because Vite allows any `localhost` origin | Spec, API | `cors: false` in `vite.config.ts` |
+| 2 | Important | Saving a contact or organization could undo a change made elsewhere while the form was open | Spec, API; C4 | The forms keep what they started with, as the deal form did |
+| 3 | Important | A page already opened showed old data with no warning when the server couldn't be reached | G4 | The message shows when anything on screen couldn't be loaded again |
+| 4 | Nit | Undoing a win made the contact a lead again, although another of their deals was won since | P8, C4 | A later win keeps them a customer, until it's undone too |
+| 5 | Nit | If a half never got ready, `npm run dev` ended after a minute without saying why | R3 | It says which half |
+| 6 | Nit | An overdue follow-up on the dashboard didn't show its date | B5 | The date is above its tag |
+| 7 | Nit | The browser's Back lost a half-filled form without asking | G6 | Back asks, and the browser asks on refreshing or leaving |
+| 8 | Nit | The API answered 500 to a time at the edge of the calendar, and to text that can't be saved | Spec, API | 422 with a message |
+| 9 | Nit | `docs/REVIEW.MD` couldn't be found as `docs/REVIEW.md` on Linux | - | Renamed |
+
+The second. 10 to 13 are fixed, each with a test that failed before its fix. 14 and 15 are open: they only showed with saves slowed down on purpose.
+
+| # | Kind | Finding | Rule | Fix |
+|---|---|---|---|---|
+| 10 | Important | A screen left open past midnight kept yesterday's date until a save or a window focus, so a deal won in the form got yesterday's close date | G8, D3, D6 | It asks for the day every minute, and loads everything again on a new one |
+| 11 | Nit | An organization's name in timelines, follow-ups and recent activity wasn't a link | Spec, Frame | It's a link |
+| 12 | Nit | Other sites could reach Vite's address that opens files in an editor | Spec, API | That address answers 404 |
+| 13 | Nit | A year typed as 26 was saved as 0026, so a won deal left the board without a word | Not in the spec | Dates need a year of four digits, in the forms and the API |
+| 14 | Nit | With slow saves, a card dropped above one that's then moved shows at the bottom until the board reloads | P3 | Open |
+| 15 | Nit | With a slow first save, ticking and unticking a follow-up can leave it done | A3 | Open |
+
 ## What's been checked
 
-- `npm test`: 410 backend tests, 187 frontend tests and 112 end-to-end tests in Chrome.
+- `npm test`: 427 backend tests, 192 frontend tests and 122 end-to-end tests in Chrome.
 - `npm test` fails when it should: with a failing test in each suite and a type error in each type check, it named all five and exited with 1.
-- The dashboard and pipeline, given mockup D's data, beside mockup D at 1280, 1440 and 1920 wide: the same page heights, and under 0.2% of pixels differ. Those are the revenue line's curve, the small icons in Recent activity, and text edges.
+- The dashboard and pipeline, given mockup D's data, beside mockup D at 1280, 1440 and 1920 wide: the same page heights, and under 0.2% of pixels differ. Those are the revenue line's curve, the small icons in Recent activity, and text edges. Since then, overdue follow-ups also show their date, which mockup D doesn't, so that panel is taller.
 - A fresh copy of the project: first start, then a start and a first page load with the network blocked.
 - In a terminal: Ctrl+C, and `npm run seed` answered yes, no and Ctrl+C with the app running.
 - Every screen by eye at 1280 by 720, 1440 by 900 and 1920 by 1080, and the dashboard and pipeline beside mockup D. The dialogs, messages and empty states at one size.
 
 ## Good to know
 
-- **Windows and Linux:** not tried. Three end-to-end tests of the commands are skipped on Windows.
+- **Windows and Linux:** not tried. Four end-to-end tests of the commands are skipped on Windows.
 - **Date fields:** while a date is being entered, the browser shows it in the computer's own order, such as 24.11.2026. Everywhere else dates read Nov 24, 2026.
 - **Contrast:** white on Cerulean and Raspberry is below 4.5, as accepted in the spec (Q3). The accessibility check leaves out only those two.
 - **Changing a table later:** there's no migration tool yet. The first change to a table needs one, or people's data won't open.

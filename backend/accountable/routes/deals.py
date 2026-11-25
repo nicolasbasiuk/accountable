@@ -1,11 +1,10 @@
-from datetime import date
 from typing import Annotated, Literal
 
 from fastapi import APIRouter
 from pydantic import AfterValidator, BaseModel
 
 from accountable import deals, timelines
-from accountable.routes.checks import EXACT, RecordId, RequiredText, problem
+from accountable.routes.checks import EXACT, Day, RecordId, RequiredText, problem
 from accountable.stages import STAGES
 
 router = APIRouter(prefix="/api/deals")
@@ -38,13 +37,13 @@ class DealEdit(BaseModel):
     stage: Literal[STAGES] = "new"
     value: Value = 0
     probability: Annotated[int, AfterValidator(_probability)] = None
-    close_date: date = None
+    close_date: Day = None
 
 
 class DealAdd(DealEdit):
     name: RequiredText
     value: Value
-    close_date: date
+    close_date: Day
 
 
 @router.get("")

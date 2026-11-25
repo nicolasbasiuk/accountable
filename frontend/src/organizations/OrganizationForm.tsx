@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { useRef } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { changed, required } from '../shared/checks'
 import { SuggestField, TextArea, TextField } from '../shared/fields'
@@ -18,7 +19,9 @@ export function OrganizationForm({ organization, onClosed }: { organization?: Ex
     industry: organization?.industry ?? '',
     notes: organization?.notes ?? '',
   }
-  const form = useForm({ defaultValues })
+  // The form keeps what it started with, also when the organization is loaded again behind it.
+  const first = useRef(defaultValues).current
+  const form = useForm({ defaultValues: first })
   const { errors } = form.formState
   const industries = [...new Set((others.data ?? []).flatMap(({ industry }) => industry ?? []))].sort()
 
@@ -28,7 +31,7 @@ export function OrganizationForm({ organization, onClosed }: { organization?: Ex
       submit={organization ? 'Save changes' : 'Add organization'}
       form={form}
       onSave={async (values) => {
-        await save.mutateAsync(organization ? changed(defaultValues, values) : values)
+        await save.mutateAsync(organization ? changed(first, values) : values)
         if (!organization) showMessage(`Added ${values.name.trim()}.`)
       }}
       onClosed={onClosed}
