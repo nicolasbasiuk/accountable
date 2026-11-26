@@ -10,7 +10,9 @@ from accountable.tables import deals
 
 def positions(stage: str) -> list[int]:
     with db.read() as connection:
-        return list(connection.scalars(select(deals.c.position).where(deals.c.stage == stage).order_by(deals.c.position)))
+        return list(
+            connection.scalars(select(deals.c.position).where(deals.c.stage == stage).order_by(deals.c.position))
+        )
 
 
 def assert_numbered() -> None:
@@ -60,14 +62,17 @@ def test_into_an_empty_column(api, three):
 # Within a column (P3)
 
 
-@pytest.mark.parametrize("card, before, expected", [
-    (2, 0, [2, 0, 1]),
-    (2, 1, [0, 2, 1]),
-    (0, 2, [1, 0, 2]),
-    (0, None, [1, 2, 0]),
-    (1, None, [0, 2, 1]),
-    (0, 1, [0, 1, 2]),
-])
+@pytest.mark.parametrize(
+    "card, before, expected",
+    [
+        (2, 0, [2, 0, 1]),
+        (2, 1, [0, 2, 1]),
+        (0, 2, [1, 0, 2]),
+        (0, None, [1, 2, 0]),
+        (1, None, [0, 2, 1]),
+        (0, 1, [0, 1, 2]),
+    ],
+)
 def test_within_a_column(api, three, card, before, expected):
     api.move(three[card], "new", None if before is None else three[before])
     assert api.column("new") == [three[place] for place in expected]

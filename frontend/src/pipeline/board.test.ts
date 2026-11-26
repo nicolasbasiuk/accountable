@@ -16,21 +16,32 @@ const config: Config = {
 }
 
 const card = (id: number, more: Partial<Card> = {}): Card => ({
-  id, name: `Deal ${id}`, organization: null, value: 10_000, probability: 10, close_date: '2027-01-14', days_late: 0, ...more,
+  id,
+  name: `Deal ${id}`,
+  organization: null,
+  value: 10_000,
+  probability: 10,
+  close_date: '2027-01-14',
+  days_late: 0,
+  ...more,
 })
 const column = (stage: Stage, cards: Card[]): Column => ({ stage, cards, ...totals(cards) })
 
 const columns = [
   column('new', [card(1), card(2, { value: 5_001, probability: 33 }), card(3)]),
   column('qualified', []),
-  column('proposal', [card(4, { probability: 50 }), card(5, { probability: 50, close_date: '2026-11-14', days_late: 10 })]),
+  column('proposal', [
+    card(4, { probability: 50 }),
+    card(5, { probability: 50, close_date: '2026-11-14', days_late: 10 }),
+  ]),
   column('negotiation', [card(6, { probability: 80 })]),
   column('won', [card(7, { probability: 100, close_date: '2026-11-10' })]),
   column('lost', [card(8, { probability: 0, close_date: '2026-11-10' })]),
 ]
 const board: Board = { ...totals(columns.slice(0, 4).flatMap(({ cards }) => cards)), columns }
 
-const move = (id: number, stage: Stage, before_id: number | null = null) => moveCard(board, { id, stage, before_id }, config)
+const move = (id: number, stage: Stage, before_id: number | null = null) =>
+  moveCard(board, { id, stage, before_id }, config)
 const ids = (of: Board, stage: Stage) => of.columns.find((one) => one.stage === stage)!.cards.map(({ id }) => id)
 const find = (of: Board, id: number) => of.columns.flatMap(({ cards }) => cards).find((one) => one.id === id)!
 
@@ -97,7 +108,11 @@ describe('moving a card', () => {
 describe('totals', () => {
   test('of some cards', () => {
     expect(totals([])).toEqual({ count: 0, value: 0, expected: 0 })
-    expect(totals([card(1), card(2, { value: 5_001, probability: 33 })])).toEqual({ count: 2, value: 15_001, expected: 2650.33 })
+    expect(totals([card(1), card(2, { value: 5_001, probability: 33 })])).toEqual({
+      count: 2,
+      value: 15_001,
+      expected: 2650.33,
+    })
   })
 
   test('change in both columns and on the board', () => {
@@ -106,7 +121,11 @@ describe('totals', () => {
     expect(of('new')).toMatchObject({ count: 2, value: 15_001 })
     expect(of('won')).toMatchObject({ count: 2, value: 20_000, expected: 20_000 })
     // Only open deals count on the board.
-    expect(after).toMatchObject({ count: board.count - 1, value: board.value - 10_000, expected: board.expected - 1_000 })
+    expect(after).toMatchObject({
+      count: board.count - 1,
+      value: board.value - 10_000,
+      expected: board.expected - 1_000,
+    })
   })
 })
 

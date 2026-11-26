@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useRef } from 'react'
+import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { organizationsQuery } from '../organizations/queries'
 import { changed, required } from '../shared/checks'
@@ -10,11 +10,17 @@ import { RecordPicker } from '../shared/RecordPicker'
 import { useSaveContact, type Contact, type Status } from './queries'
 import { STATUS_NAMES, STATUSES, StatusName } from './StatusName'
 
-type Props = { contact?: Omit<Contact, 'last_activity' | 'next_follow_up'>; organizationId?: number; onClosed: () => void }
+type Props = {
+  contact?: Omit<Contact, 'last_activity' | 'next_follow_up'>
+  organizationId?: number
+  onClosed: () => void
+}
 
 export function checkEmail(text: string): true | string {
   const email = text.trim()
-  return email === '' || /^[^@\s]+@[^@\s.]+(\.[^@\s.]+)+$/.test(email) || 'Enter an email address, such as name@example.com.'
+  return (
+    email === '' || /^[^@\s]+@[^@\s.]+(\.[^@\s.]+)+$/.test(email) || 'Enter an email address, such as name@example.com.'
+  )
 }
 
 export function ContactForm({ contact, organizationId, onClosed }: Props) {
@@ -29,7 +35,7 @@ export function ContactForm({ contact, organizationId, onClosed }: Props) {
     status: (contact?.status ?? 'lead') as Status,
   }
   // The form keeps what it started with, also when the contact is loaded again behind it.
-  const first = useRef(defaultValues).current
+  const [first] = useState(defaultValues)
   const form = useForm({ defaultValues: first })
   const { errors } = form.formState
   if (organizations.isPending) return null
@@ -48,7 +54,12 @@ export function ContactForm({ contact, organizationId, onClosed }: Props) {
     >
       <TextField label="Name" error={errors.name?.message} {...form.register('name', required('Enter a name.'))} />
       <TextField label="Job title" optional error={errors.job_title?.message} {...form.register('job_title')} />
-      <TextField label="Email" optional error={errors.email?.message} {...form.register('email', { validate: checkEmail })} />
+      <TextField
+        label="Email"
+        optional
+        error={errors.email?.message}
+        {...form.register('email', { validate: checkEmail })}
+      />
       <TextField label="Phone" optional error={errors.phone?.message} {...form.register('phone')} />
       <Controller
         control={form.control}
@@ -68,7 +79,11 @@ export function ContactForm({ contact, organizationId, onClosed }: Props) {
       <ChoiceField
         label="Status"
         className="col-span-2"
-        options={STATUSES.map((status) => ({ value: status, label: STATUS_NAMES[status], show: <StatusName status={status} /> }))}
+        options={STATUSES.map((status) => ({
+          value: status,
+          label: STATUS_NAMES[status],
+          show: <StatusName status={status} />,
+        }))}
         error={errors.status?.message}
         {...form.register('status')}
       />

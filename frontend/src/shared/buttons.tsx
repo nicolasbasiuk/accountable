@@ -30,7 +30,12 @@ export function AddButton({ children, ...props }: ComponentProps<'button'>) {
 }
 
 /** A button with only an icon. Its label is for screen readers and shows when pointed at. */
-export function IconButton({ label, className = '', children, ...props }: ComponentProps<'button'> & { label: string; children: ReactNode }) {
+export function IconButton({
+  label,
+  className = '',
+  children,
+  ...props
+}: ComponentProps<'button'> & { label: string; children: ReactNode }) {
   return (
     <button
       type="button"

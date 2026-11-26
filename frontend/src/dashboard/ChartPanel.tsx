@@ -12,7 +12,12 @@ export function ChartPanel({ heading, table, children }: { heading: string; tabl
     <HeadedPanel
       heading={heading}
       action={
-        <LinkButton className="text-sm text-muted" aria-expanded={asTable} aria-label={`${asTable ? 'Show chart' : 'Show table'}: ${heading}`} onClick={() => setAsTable(!asTable)}>
+        <LinkButton
+          className="text-sm text-muted"
+          aria-expanded={asTable}
+          aria-label={`${asTable ? 'Show chart' : 'Show table'}: ${heading}`}
+          onClick={() => setAsTable(!asTable)}
+        >
           {asTable ? 'Show chart' : 'Show table'}
         </LinkButton>
       }
@@ -30,16 +35,22 @@ function Figures({ heading, headings, rows }: Table & { heading: string }) {
       <thead>
         <tr>
           {headings.map((name) => (
-            <th key={name} scope="col" className="py-1.5 text-right font-medium text-muted first:text-left">{name}</th>
+            <th key={name} scope="col" className="py-1.5 text-right font-medium text-muted first:text-left">
+              {name}
+            </th>
           ))}
         </tr>
       </thead>
       <tbody>
         {rows.map(([first, ...others], index) => (
           <tr key={index}>
-            <th scope="row" className="border-t border-hair py-1.5 text-left font-normal">{first}</th>
+            <th scope="row" className="border-t border-hair py-1.5 text-left font-normal">
+              {first}
+            </th>
             {others.map((cell, place) => (
-              <td key={place} className="num border-t border-hair py-1.5 text-right text-xs">{cell}</td>
+              <td key={place} className="num border-t border-hair py-1.5 text-right text-xs">
+                {cell}
+              </td>
             ))}
           </tr>
         ))}
@@ -54,7 +65,9 @@ export function Tip({ heading, lines }: { heading: string; lines: string[] }) {
     <div className="rounded-control bg-white px-3.5 py-2.5 text-sm shadow-lifted">
       <p className="font-semibold">{heading}</p>
       {lines.map((line) => (
-        <p key={line} className="num text-xs">{line}</p>
+        <p key={line} className="num text-xs">
+          {line}
+        </p>
       ))}
     </div>
   )

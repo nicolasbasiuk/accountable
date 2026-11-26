@@ -5,18 +5,43 @@ from accountable.stages import CLOSED, OPEN
 
 def test_six_columns_in_order(api):
     """P1"""
-    assert [column["stage"] for column in api.get("/board")["columns"]] == ["new", "qualified", "proposal", "negotiation", "won", "lost"]
+    assert [column["stage"] for column in api.get("/board")["columns"]] == [
+        "new",
+        "qualified",
+        "proposal",
+        "negotiation",
+        "won",
+        "lost",
+    ]
 
 
 def test_cards_in_order_with_their_fields(api):
     """P2"""
     organization = api.organization()
     low = api.deal("Low", stage="proposal", value=8_000, close_date="2026-11-20")
-    top = api.deal("Top", stage="proposal", value=10_000, probability=40, close_date="2027-01-01", organization_id=organization)
+    top = api.deal(
+        "Top", stage="proposal", value=10_000, probability=40, close_date="2027-01-01", organization_id=organization
+    )
     cards = api.get("/board")["columns"][2]["cards"]
     assert cards == [
-        {"id": top, "name": "Top", "organization": "Upland Water", "value": 10_000, "probability": 40, "close_date": "2027-01-01", "days_late": 0},
-        {"id": low, "name": "Low", "organization": None, "value": 8_000, "probability": 50, "close_date": "2026-11-20", "days_late": 4},
+        {
+            "id": top,
+            "name": "Top",
+            "organization": "Upland Water",
+            "value": 10_000,
+            "probability": 40,
+            "close_date": "2027-01-01",
+            "days_late": 0,
+        },
+        {
+            "id": low,
+            "name": "Low",
+            "organization": None,
+            "value": 8_000,
+            "probability": 50,
+            "close_date": "2026-11-20",
+            "days_late": 4,
+        },
     ]
 
 
@@ -31,7 +56,10 @@ def test_closed_90_days_ago_shows_and_91_does_not(api, stage):
 
 @pytest.mark.parametrize("stage", OPEN)
 def test_open_deals_always_show(api, stage):
-    old, far = api.deal("Old", stage=stage, close_date="2020-01-01"), api.deal("Far", stage=stage, close_date="2030-01-01")
+    old, far = (
+        api.deal("Old", stage=stage, close_date="2020-01-01"),
+        api.deal("Far", stage=stage, close_date="2030-01-01"),
+    )
     assert api.column(stage) == [far, old]
 
 

@@ -66,5 +66,8 @@ def copy(target: Path) -> None:
     """Copies the database to a new file. Safe while the app is using it."""
     target.parent.mkdir(parents=True, exist_ok=True)
     source = settings.database_path()
-    with closing(sqlite3.connect(source, timeout=WAIT_SECONDS)) as from_file, closing(sqlite3.connect(target)) as to_file:
+    with (
+        closing(sqlite3.connect(source, timeout=WAIT_SECONDS)) as from_file,
+        closing(sqlite3.connect(target)) as to_file,
+    ):
         from_file.backup(to_file)

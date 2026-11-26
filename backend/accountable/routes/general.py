@@ -11,7 +11,12 @@ def get_config():
         "today": clock.today(),
         "now": clock.as_text(clock.now()),
         "stages": [
-            {"key": key, "name": stages.NAMES[key], "probability": stages.USUAL_PROBABILITY[key], "open": key in stages.OPEN}
+            {
+                "key": key,
+                "name": stages.NAMES[key],
+                "probability": stages.USUAL_PROBABILITY[key],
+                "open": key in stages.OPEN,
+            }
             for key in stages.STAGES
         ],
     }

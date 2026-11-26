@@ -27,7 +27,9 @@ export function consequences(what: What, numbers: Numbers): string[] {
   if (activities === 1) {
     sentences.push(`1 activity is deleted${follow_ups ? ', with a follow-up still to do' : ''}.`)
   } else if (activities) {
-    sentences.push(`${activities} activities are deleted${follow_ups ? `, ${follow_ups} with a follow-up still to do` : ''}.`)
+    sentences.push(
+      `${activities} activities are deleted${follow_ups ? `, ${follow_ups} with a follow-up still to do` : ''}.`,
+    )
   }
   return sentences
 }

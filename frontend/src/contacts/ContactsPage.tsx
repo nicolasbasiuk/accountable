@@ -21,7 +21,9 @@ const columns: Column<Contact>[] = [
     value: (row) => row.name,
     cell: (row) => (
       <>
-        <Link to={path(row)} className="link font-semibold">{row.name}</Link>
+        <Link to={path(row)} className="link font-semibold">
+          {row.name}
+        </Link>
         {row.job_title && <span className="block text-sm text-muted">{row.job_title}</span>}
       </>
     ),
@@ -30,10 +32,22 @@ const columns: Column<Contact>[] = [
     id: 'organization',
     heading: 'Organization',
     value: (row) => row.organization?.name,
-    cell: (row) => row.organization && <Link to={`/organizations/${row.organization.id}`} className="link">{row.organization.name}</Link>,
+    cell: (row) =>
+      row.organization && (
+        <Link to={`/organizations/${row.organization.id}`} className="link">
+          {row.organization.name}
+        </Link>
+      ),
     width: '14%',
   },
-  { id: 'status', heading: 'Status', value: (row) => row.status, cell: (row) => <StatusName status={row.status} />, order: STATUSES, width: '108px' },
+  {
+    id: 'status',
+    heading: 'Status',
+    value: (row) => row.status,
+    cell: (row) => <StatusName status={row.status} />,
+    order: STATUSES,
+    width: '108px',
+  },
   {
     id: 'email',
     heading: 'Email',
@@ -45,7 +59,12 @@ const columns: Column<Contact>[] = [
     id: 'phone',
     heading: 'Phone',
     value: (row) => row.phone,
-    cell: (row) => row.phone && <a href={`tel:${row.phone.replace(/[^\d+]/g, '')}`} className="link">{row.phone}</a>,
+    cell: (row) =>
+      row.phone && (
+        <a href={`tel:${row.phone.replace(/[^\d+]/g, '')}`} className="link">
+          {row.phone}
+        </a>
+      ),
     look: 'date',
     width: '132px',
   },
@@ -102,7 +121,9 @@ export function ContactsPage() {
       </Loaded>
       {open?.what === 'add' && <ContactForm onClosed={close} />}
       {open?.what === 'edit' && <ContactForm contact={open.row} onClosed={close} />}
-      {open?.what === 'delete' && <ConfirmDelete what="contact" name={open.row.name} path={path(open.row)} onClosed={close} />}
+      {open?.what === 'delete' && (
+        <ConfirmDelete what="contact" name={open.row.name} path={path(open.row)} onClosed={close} />
+      )}
     </Page>
   )
 }

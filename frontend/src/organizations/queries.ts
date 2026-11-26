@@ -14,11 +14,16 @@ export type OrganizationDetails = Fields & {
   deals: LinkedDeal[]
 }
 
-export const organizationsQuery = queryOptions({ queryKey: ['organizations'], queryFn: () => get<Organization[]>('/organizations') })
+export const organizationsQuery = queryOptions({
+  queryKey: ['organizations'],
+  queryFn: () => get<Organization[]>('/organizations'),
+})
 
 export const organizationQuery = (id: number) =>
   queryOptions({ queryKey: ['organizations', id], queryFn: () => get<OrganizationDetails>(`/organizations/${id}`) })
 
 /** Adds one, or edits the one with the id. */
 export const useSaveOrganization = (id?: number) =>
-  useMutation({ mutationFn: (body: object) => (id ? patch(`/organizations/${id}`, body) : post('/organizations', body)) })
+  useMutation({
+    mutationFn: (body: object) => (id ? patch(`/organizations/${id}`, body) : post('/organizations', body)),
+  })

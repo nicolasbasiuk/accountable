@@ -53,7 +53,10 @@ function Shown({ deal }: { deal: Deal }) {
           >
             <Details
               fields={[
-                ['Value', <span className="num text-xl leading-none font-medium tracking-[-0.04em]">{money(deal.value)}</span>],
+                [
+                  'Value',
+                  <span className="num text-xl leading-none font-medium tracking-[-0.04em]">{money(deal.value)}</span>,
+                ],
                 ['Probability', <span className="num text-sm">{percent(deal.probability)}</span>],
                 ['Expected revenue', <span className="num text-sm">{money(deal.expected_revenue)}</span>],
                 [
@@ -63,8 +66,22 @@ function Shown({ deal }: { deal: Deal }) {
                     <LateTag days={deal.days_late} />
                   </span>,
                 ],
-                ['Organization', organization && <Link to={`/organizations/${organization.id}`} className="link">{organization.name}</Link>],
-                ['Main contact', contact && <Link to={`/contacts/${contact.id}`} className="link">{contact.name}</Link>],
+                [
+                  'Organization',
+                  organization && (
+                    <Link to={`/organizations/${organization.id}`} className="link">
+                      {organization.name}
+                    </Link>
+                  ),
+                ],
+                [
+                  'Main contact',
+                  contact && (
+                    <Link to={`/contacts/${contact.id}`} className="link">
+                      {contact.name}
+                    </Link>
+                  ),
+                ],
               ]}
             />
           </HeadedPanel>
@@ -74,7 +91,13 @@ function Shown({ deal }: { deal: Deal }) {
       </RecordColumns>
       {open === 'edit' && <DealForm deal={deal} onClosed={close} />}
       {open === 'delete' && (
-        <ConfirmDelete what="deal" name={name} path={`/deals/${id}`} onDeleted={() => navigate('/deals', { flushSync: true })} onClosed={close} />
+        <ConfirmDelete
+          what="deal"
+          name={name}
+          path={`/deals/${id}`}
+          onDeleted={() => navigate('/deals', { flushSync: true })}
+          onClosed={close}
+        />
       )}
     </Page>
   )

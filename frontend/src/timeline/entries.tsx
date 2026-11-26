@@ -18,9 +18,16 @@ export function EntryText({ entry }: { entry: Entry }) {
 export function EntryRecordLink({ record }: { record: EntryRecord }) {
   return (
     <>
-      <Link to={`/${record.kind}s/${record.id}`} className="link">{record.name}</Link>
+      <Link to={`/${record.kind}s/${record.id}`} className="link">
+        {record.name}
+      </Link>
       {record.organization && (
-        <>, <Link to={`/organizations/${record.organization.id}`} className="link">{record.organization.name}</Link></>
+        <>
+          ,{' '}
+          <Link to={`/organizations/${record.organization.id}`} className="link">
+            {record.organization.name}
+          </Link>
+        </>
       )}
     </>
   )

@@ -11,7 +11,11 @@ test.each([
   ['organization', { contacts: 1, deals: 0 }, '1 contact is kept, with no organization.'],
   ['organization', { contacts: 0, deals: 2 }, '2 deals are kept, with no organization.'],
   ['organization', { contacts: 0, deals: 0 }, ''],
-  ['contact', { deals: 2, activities: 5, follow_ups: 1 }, '2 deals are kept, with no main contact. 5 activities are deleted, 1 with a follow-up still to do.'],
+  [
+    'contact',
+    { deals: 2, activities: 5, follow_ups: 1 },
+    '2 deals are kept, with no main contact. 5 activities are deleted, 1 with a follow-up still to do.',
+  ],
   ['contact', { deals: 1, activities: 0, follow_ups: 0 }, '1 deal is kept, with no main contact.'],
   ['contact', { deals: 0, activities: 1, follow_ups: 0 }, '1 activity is deleted.'],
   ['contact', { deals: 0, activities: 0, follow_ups: 0 }, ''],
@@ -44,7 +48,9 @@ function show(answers: (method: string, path: string) => Response) {
 const numbers = () => Response.json({ deals: 2, activities: 5, follow_ups: 1 })
 
 test('names the record and says what happens, then deletes', async () => {
-  const { user, asked, onClosed, onDeleted } = show((method) => (method === 'GET' ? numbers() : Response.json({ id: 7 })))
+  const { user, asked, onClosed, onDeleted } = show((method) =>
+    method === 'GET' ? numbers() : Response.json({ id: 7 }),
+  )
   expect(await screen.findByText(/2 deals are kept, with no main contact/)).toBeVisible()
   expect(screen.getByRole('alertdialog', { name: 'Delete Priya Nair?' })).toBeVisible()
   expect(asked).toEqual(['GET /api/contacts/7/deletion'])
@@ -65,7 +71,9 @@ test('cancelling deletes nothing', async () => {
 })
 
 test('says why it could not be deleted', async () => {
-  const { user, onDeleted, onClosed } = show((method) => (method === 'GET' ? numbers() : new Response('Not JSON', { status: 500 })))
+  const { user, onDeleted, onClosed } = show((method) =>
+    method === 'GET' ? numbers() : new Response('Not JSON', { status: 500 }),
+  )
   await user.click(await screen.findByRole('button', { name: 'Delete contact' }))
   expect(await screen.findByRole('alert')).toHaveTextContent("Not deleted. The server can't be reached.")
   expect(onDeleted).not.toHaveBeenCalled()

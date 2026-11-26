@@ -213,7 +213,9 @@ def test_a_refused_win_does_not_make_a_customer(api):
 
 
 @pytest.mark.parametrize("stage", OPEN)
-@pytest.mark.parametrize("close_date, days", [("2026-11-23", 1), ("2026-11-14", 10), ("2026-11-24", 0), ("2026-11-25", 0)])
+@pytest.mark.parametrize(
+    "close_date, days", [("2026-11-23", 1), ("2026-11-14", 10), ("2026-11-24", 0), ("2026-11-25", 0)]
+)
 def test_late(api, stage, close_date, days):
     assert api.get(f"/deals/{api.deal(stage=stage, close_date=close_date)}")["days_late"] == days
 

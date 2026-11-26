@@ -1,6 +1,7 @@
 """Deals (D1 to D7). What a change of stage does is in pipeline.py."""
 
-from sqlalchemy import Connection, Row, Select, delete as delete_from, func, insert, select, update
+from sqlalchemy import Connection, Row, Select, func, insert, select, update
+from sqlalchemy import delete as delete_from
 
 from accountable import clock, db, pipeline, stages
 from accountable.errors import Invalid, NotFound

@@ -24,7 +24,11 @@ def board() -> dict:
         rows = connection.execute(query).all()
     columns = []
     for stage in stages.STAGES:
-        cards = [_card(row, today) for row in rows if row.stage == stage and stages.shown_on_board(stage, row.close_date, today)]
+        cards = [
+            _card(row, today)
+            for row in rows
+            if row.stage == stage and stages.shown_on_board(stage, row.close_date, today)
+        ]
         columns.append({"stage": stage, **_totals(cards), "cards": cards})
     open_cards = [card for column in columns if column["stage"] in stages.OPEN for card in column["cards"]]
     return {**_totals(open_cards), "columns": columns}
@@ -75,7 +79,11 @@ def change_stage(connection: Connection, deal: Row, to_stage: str, edits: dict, 
     connection.execute(
         update(deals)
         .where(deals.c.id == deal.id)
-        .values(stage=to_stage, probability=stages.probability_for(to_stage, edits.get("probability")), close_date=given_date)
+        .values(
+            stage=to_stage,
+            probability=stages.probability_for(to_stage, edits.get("probability")),
+            close_date=given_date,
+        )
     )
     change = {
         "deal_id": deal.id,
@@ -122,25 +130,33 @@ def undo(deal_id: int, stage_change_id: int) -> None:
 def _put_status_back(connection: Connection, win: Row) -> None:
     later_win = connection.execute(
         select(stage_changes)
-        .where(stage_changes.c.contact_id == win.contact_id, stage_changes.c.to_stage == "won", stage_changes.c.id > win.id)
+        .where(
+            stage_changes.c.contact_id == win.contact_id, stage_changes.c.to_stage == "won", stage_changes.c.id > win.id
+        )
         .order_by(stage_changes.c.id)
         .limit(1)
     ).first()
     if not later_win:
         # Unless it was changed by hand since, which is kept.
         connection.execute(
-            update(contacts).where(contacts.c.id == win.contact_id, contacts.c.status == "customer").values(status=win.from_status)
+            update(contacts)
+            .where(contacts.c.id == win.contact_id, contacts.c.status == "customer")
+            .values(status=win.from_status)
         )
     elif not later_win.from_status:
         # Without this win, the later one would have made them a customer, so undoing that one puts the status back.
-        connection.execute(update(stage_changes).where(stage_changes.c.id == later_win.id).values(from_status=win.from_status))
+        connection.execute(
+            update(stage_changes).where(stage_changes.c.id == later_win.id).values(from_status=win.from_status)
+        )
 
 
 def add_as_won(connection: Connection, contact_id: int | None) -> None:
     """C4. Adding a deal can't be undone, so its contact stays a customer when an earlier win is undone."""
     make_customer(connection, contact_id)
     if contact_id:
-        connection.execute(update(stage_changes).where(stage_changes.c.contact_id == contact_id).values(from_status=None))
+        connection.execute(
+            update(stage_changes).where(stage_changes.c.contact_id == contact_id).values(from_status=None)
+        )
 
 
 def make_customer(connection: Connection, contact_id: int | None) -> str | None:
@@ -176,7 +192,9 @@ def _deal(connection: Connection, deal_id: int) -> Row:
 
 def _column(connection: Connection, stage: str) -> Sequence[int]:
     """Every deal in a stage in order, also those too old to show on the board."""
-    return connection.scalars(select(deals.c.id).where(deals.c.stage == stage).order_by(deals.c.position, deals.c.id)).all()
+    return connection.scalars(
+        select(deals.c.id).where(deals.c.stage == stage).order_by(deals.c.position, deals.c.id)
+    ).all()
 
 
 def _with(column: Sequence[int], deal_id: int, place: int) -> list[int]:
@@ -189,4 +207,3 @@ def _number(connection: Connection, column: Sequence[int]) -> None:
             update(deals).where(deals.c.id == bindparam("deal")).values(position=bindparam("place")),
             [{"deal": deal_id, "place": place} for place, deal_id in enumerate(column)],
         )
-

@@ -31,7 +31,9 @@ export function PipelineColumn({ column, onAdd }: { column: Column; onAdd: () =>
             <Plus size={17} aria-hidden />
           </button>
         </div>
-        <p className="num text-xl leading-[1.3] font-semibold tracking-[-0.05em] wrap-anywhere">{money(column.value)}</p>
+        <p className="num text-xl leading-[1.3] font-semibold tracking-[-0.05em] wrap-anywhere">
+          {money(column.value)}
+        </p>
         <p className="text-sm leading-[1.35] font-semibold tracking-[-0.01em] wrap-anywhere">
           <span className="num tracking-[-0.05em]">{money(column.expected)}</span> expected
         </p>
@@ -53,7 +55,9 @@ export function PipelineColumn({ column, onAdd }: { column: Column; onAdd: () =>
             ))}
             {provided.placeholder}
             {cards.length === 0 && !snapshot.isDraggingOver && (
-              <p className="px-3 py-4 text-center text-sm text-muted">{open ? `No deals in ${name}.` : `No deals ${name.toLowerCase()} in the last 90 days.`}</p>
+              <p className="px-3 py-4 text-center text-sm text-muted">
+                {open ? `No deals in ${name}.` : `No deals ${name.toLowerCase()} in the last 90 days.`}
+              </p>
             )}
           </div>
         )}

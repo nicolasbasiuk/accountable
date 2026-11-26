@@ -1,5 +1,22 @@
 import { afterEach, describe, expect, test } from 'vitest'
-import { date, dateTime, dayOf, daysBetween, due, fromField, money, monthAndYear, monthName, percent, plural, share, shorten, shortMoney, time, toField } from './format'
+import {
+  date,
+  dateTime,
+  dayOf,
+  daysBetween,
+  due,
+  fromField,
+  money,
+  monthAndYear,
+  monthName,
+  percent,
+  plural,
+  share,
+  shorten,
+  shortMoney,
+  time,
+  toField,
+} from './format'
 
 test('money is whole dollars, rounded only when shown', () => {
   expect(money(125000)).toBe('$125,000')
@@ -10,7 +27,14 @@ test('money is whole dollars, rounded only when shown', () => {
 })
 
 test('short money for the axis of a chart', () => {
-  expect([0, 500, 50_000, 200_000, 1_500_000, 2_000_000_000].map(shortMoney)).toEqual(['$0', '$500', '$50K', '$200K', '$1.5M', '$2B'])
+  expect([0, 500, 50_000, 200_000, 1_500_000, 2_000_000_000].map(shortMoney)).toEqual([
+    '$0',
+    '$500',
+    '$50K',
+    '$200K',
+    '$1.5M',
+    '$2B',
+  ])
 })
 
 test('percentages', () => {

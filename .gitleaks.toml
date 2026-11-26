@@ -1,0 +1,6 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "The git-ignored .env holds this computer's own settings and secrets"
+paths = ['''^\.env$''']

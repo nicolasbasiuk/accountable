@@ -31,12 +31,23 @@ export function RecordPicker({ label, what, value, onChange, groups, error, clas
           autoHighlight
         >
           <Combobox.InputGroup className="relative">
-            <Combobox.Input {...ids} placeholder={`No ${what}`} autoComplete="off" className={`${CONTROL} h-11 pr-19`} />
+            <Combobox.Input
+              {...ids}
+              placeholder={`No ${what}`}
+              autoComplete="off"
+              className={`${CONTROL} h-11 pr-19`}
+            />
             <div className="absolute inset-y-0 right-1.5 flex items-center text-muted">
-              <Combobox.Clear aria-label={`Clear ${what}`} className="grid size-8 cursor-pointer place-items-center rounded-tag hover:bg-wash">
+              <Combobox.Clear
+                aria-label={`Clear ${what}`}
+                className="grid size-8 cursor-pointer place-items-center rounded-tag hover:bg-wash"
+              >
                 <X size={16} aria-hidden />
               </Combobox.Clear>
-              <Combobox.Trigger aria-label={`Show every ${what}`} className="grid size-8 cursor-pointer place-items-center rounded-tag hover:bg-wash">
+              <Combobox.Trigger
+                aria-label={`Show every ${what}`}
+                className="grid size-8 cursor-pointer place-items-center rounded-tag hover:bg-wash"
+              >
                 <ChevronDown size={18} aria-hidden />
               </Combobox.Trigger>
             </div>
@@ -50,7 +61,11 @@ export function RecordPicker({ label, what, value, onChange, groups, error, clas
                 <Combobox.List>
                   {(group: PickerGroup) => (
                     <Combobox.Group key={group.value} items={group.items}>
-                      {group.value && <Combobox.GroupLabel className="px-2.5 pt-2 pb-1 text-sm font-medium text-muted">{group.value}</Combobox.GroupLabel>}
+                      {group.value && (
+                        <Combobox.GroupLabel className="px-2.5 pt-2 pb-1 text-sm font-medium text-muted">
+                          {group.value}
+                        </Combobox.GroupLabel>
+                      )}
                       <Combobox.Collection>
                         {(item: PickerItem) => (
                           <Combobox.Item key={item.value} value={item} className={ITEM}>

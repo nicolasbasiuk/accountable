@@ -1,6 +1,7 @@
 """The sample data for a given day (S1 to S4): plain rows, the same each time for the same day."""
 
 from datetime import date, datetime, time, timedelta
+from itertools import pairwise
 from random import Random
 
 from accountable import sample_words as words
@@ -83,15 +84,23 @@ def _contacts() -> list[dict]:
         place = (number - 1) % len(words.ORGANIZATIONS)
         at_organization = number <= len(words.CONTACTS) - 2
         domain = words.ORGANIZATIONS[place][2] if at_organization else "postbox.example"
-        rows.append({
-            "id": number,
-            "name": name,
-            "email": f"{name.lower().replace(' ', '.')}@{domain}",
-            "phone": f"({words.AREA_CODES[number % len(words.AREA_CODES)]}) 555-01{number:02d}" if number % 13 else None,
-            "job_title": words.JOB_TITLES[(number + 5 * ((number - 1) // len(words.ORGANIZATIONS))) % len(words.JOB_TITLES)] if at_organization else None,
-            "status": "lead",
-            "organization_id": place + 1 if at_organization else None,
-        })
+        rows.append(
+            {
+                "id": number,
+                "name": name,
+                "email": f"{name.lower().replace(' ', '.')}@{domain}",
+                "phone": f"({words.AREA_CODES[number % len(words.AREA_CODES)]}) 555-01{number:02d}"
+                if number % 13
+                else None,
+                "job_title": words.JOB_TITLES[
+                    (number + 5 * ((number - 1) // len(words.ORGANIZATIONS))) % len(words.JOB_TITLES)
+                ]
+                if at_organization
+                else None,
+                "status": "lead",
+                "organization_id": place + 1 if at_organization else None,
+            }
+        )
     return rows
 
 
@@ -136,7 +145,9 @@ def _deals(today: date, contacts: list[dict]) -> list[dict]:
 
     # Those that changed last are at the top of their column, as if each had been moved there.
     for stage in DEALS_IN_STAGE:
-        column = sorted((deal for deal in deals if deal["stage"] == stage), key=lambda deal: deal["entered"][-1][1], reverse=True)
+        column = sorted(
+            (deal for deal in deals if deal["stage"] == stage), key=lambda deal: deal["entered"][-1][1], reverse=True
+        )
         for position, deal in enumerate(column):
             deal["position"] = position
     return deals
@@ -160,9 +171,15 @@ def _close(deal: dict, today: date, close_date: date, stages: list[str]) -> None
     """Works back from the close date: one to four months, through the given stages."""
     random = Random(f"{SEED} closed {deal['id']}")
     started = _started(random, close_date, close_date - timedelta(days=DURATION[0]))
-    days = [started, *sorted(random.sample(_days(started + timedelta(days=1), close_date - timedelta(days=1)), len(stages) - 1)), close_date]
+    days = [
+        started,
+        *sorted(random.sample(_days(started + timedelta(days=1), close_date - timedelta(days=1)), len(stages) - 1)),
+        close_date,
+    ]
     deal["close_date"] = close_date
-    deal["entered"] = [(stage, _at(day, today, random, (9, 12))) for stage, day in zip([*stages, deal["stage"]], days, strict=True)]
+    deal["entered"] = [
+        (stage, _at(day, today, random, (9, 12))) for stage, day in zip([*stages, deal["stage"]], days, strict=True)
+    ]
 
 
 def _started(random: Random, close_date: date, latest: date) -> date:
@@ -193,18 +210,20 @@ def _stage_changes(deals: list[dict]) -> list[dict]:
     rows = []
     for deal in deals:
         steps = deal["entered"]
-        for (from_stage, _), (to_stage, changed_at) in zip(steps, steps[1:], strict=False):
-            rows.append({
-                "deal_id": deal["id"],
-                "contact_id": deal["contact_id"],
-                "from_stage": from_stage,
-                "to_stage": to_stage,
-                "changed_at": changed_at,
-                "from_probability": USUAL_PROBABILITY[from_stage],
-                "from_close_date": deal["close_date"],
-                "from_position": 0,
-                "from_status": None,
-            })
+        for (from_stage, _), (to_stage, changed_at) in pairwise(steps):
+            rows.append(
+                {
+                    "deal_id": deal["id"],
+                    "contact_id": deal["contact_id"],
+                    "from_stage": from_stage,
+                    "to_stage": to_stage,
+                    "changed_at": changed_at,
+                    "from_probability": USUAL_PROBABILITY[from_stage],
+                    "from_close_date": deal["close_date"],
+                    "from_position": 0,
+                    "from_status": None,
+                }
+            )
     return _numbered(rows, "changed_at")
 
 
@@ -217,7 +236,9 @@ def _set_statuses(contacts: list[dict], deals: list[dict], changes: list[dict]) 
             by_id[change["contact_id"]]["status"] = "customer"
 
     def furthest(contact: dict) -> int:
-        stages = [OPEN.index(deal["stage"]) for deal in deals if deal["contact_id"] == contact["id"] and deal["stage"] in OPEN]
+        stages = [
+            OPEN.index(deal["stage"]) for deal in deals if deal["contact_id"] == contact["id"] and deal["stage"] in OPEN
+        ]
         return max(stages, default=-1)
 
     others = [contact for contact in contacts if contact["status"] == "lead"]
@@ -237,7 +258,9 @@ def _activities(today: date, contacts: list[dict], deals: list[dict]) -> list[di
     return _numbered(rows, "happened_at")
 
 
-def _activity(words_: tuple[str, str], happened_at: datetime, *, deal: dict | None = None, contact: dict | None = None) -> dict:
+def _activity(
+    words_: tuple[str, str], happened_at: datetime, *, deal: dict | None = None, contact: dict | None = None
+) -> dict:
     kind, description = words_
     return {
         "type": kind,
@@ -319,7 +342,9 @@ def _on_contacts(contacts: list[dict], today: date) -> list[dict]:
         rows.append(row)
     for days, text, contact in zip(DUE_ON_CONTACTS, words.TO_DO_ON_CONTACTS, people, strict=False):
         last_day = today + timedelta(days=min(days, 0) - 1)
-        row = _activity(text, _at(random.choice(_days(last_day - timedelta(days=6), last_day)), today, random), contact=contact)
+        row = _activity(
+            text, _at(random.choice(_days(last_day - timedelta(days=6), last_day)), today, random), contact=contact
+        )
         row["follow_up_on"] = today + timedelta(days=days)
         rows.append(row)
     return rows

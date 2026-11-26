@@ -33,7 +33,8 @@ export const dashboardQuery = queryOptions({ queryKey: ['dashboard'], queryFn: (
 /** Marks a follow-up done, and offers Undo (B5). */
 export function useFinish() {
   const save = useMutation({
-    mutationFn: ({ followUp, done }: { followUp: FollowUp; done: boolean }) => patch(`/activities/${followUp.id}`, { done }),
+    mutationFn: ({ followUp, done }: { followUp: FollowUp; done: boolean }) =>
+      patch(`/activities/${followUp.id}`, { done }),
     onSuccess: (_saved, { followUp, done }) => {
       if (done) showMessage(`Done: ${shorten(followUp.description)}`, () => save.mutate({ followUp, done: false }))
     },

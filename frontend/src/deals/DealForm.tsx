@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import { useRef } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { useRef, useState } from 'react'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 import { contactsQuery } from '../contacts/queries'
 import { organizationsQuery } from '../organizations/queries'
 import { required } from '../shared/checks'
@@ -12,7 +12,17 @@ import { RecordPicker } from '../shared/RecordPicker'
 import { useSaveDeal, type Deal } from './queries'
 import { StageName } from './StageName'
 import { STAGE_ORDER } from './stages'
-import { checkCloseDate, checkProbability, checkValue, contactGroups, dealBody, forStage, isFixed, organizationFor, type DealValues } from './suggestions'
+import {
+  checkCloseDate,
+  checkProbability,
+  checkValue,
+  contactGroups,
+  dealBody,
+  forStage,
+  isFixed,
+  organizationFor,
+  type DealValues,
+} from './suggestions'
 
 type Preset = { stage?: Stage; organization_id?: number | null; contact_id?: number | null }
 
@@ -43,10 +53,11 @@ export function DealForm({ deal, preset = {}, onClosed }: { deal?: Deal; preset?
         ...forStage(config, stage, '', null),
       }
   // The form keeps what it started with, also when the deal is loaded again behind it.
-  const first = useRef(defaultValues).current
+  const [first] = useState(defaultValues)
   const form = useForm<DealValues>({ defaultValues: first })
   const { errors } = form.formState
-  const [chosenStage, organizationId] = form.watch(['stage', 'organization_id'])
+  const chosenStage = useWatch({ control: form.control, name: 'stage' })
+  const organizationId = useWatch({ control: form.control, name: 'organization_id' })
   if (contacts.isPending || organizations.isPending) return null
 
   const people = contacts.data ?? []
@@ -81,7 +92,12 @@ export function DealForm({ deal, preset = {}, onClosed }: { deal?: Deal; preset?
       }}
       onClosed={onClosed}
     >
-      <TextField label="Name" className="col-span-2" error={errors.name?.message} {...form.register('name', required('Enter a name.'))} />
+      <TextField
+        label="Name"
+        className="col-span-2"
+        error={errors.name?.message}
+        {...form.register('name', required('Enter a name.'))}
+      />
       <Controller
         control={form.control}
         name="organization_id"
@@ -116,7 +132,11 @@ export function DealForm({ deal, preset = {}, onClosed }: { deal?: Deal; preset?
         render={({ field, fieldState }) => (
           <SelectField
             label="Stage"
-            options={STAGE_ORDER.map((key) => ({ value: key, label: stageInfo(config, key).name, show: <StageName stage={key} /> }))}
+            options={STAGE_ORDER.map((key) => ({
+              value: key,
+              label: stageInfo(config, key).name,
+              show: <StageName stage={key} />,
+            }))}
             value={field.value}
             onChange={(next) => chooseStage(next as Stage)}
             error={fieldState.error?.message}

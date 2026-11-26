@@ -15,7 +15,9 @@ export function LinkedDeals({ deals, onAdd }: { deals: LinkedDeal[]; onAdd: () =
         {deals.map((deal) => (
           <Row key={deal.id}>
             <span className="min-w-0">
-              <Link to={`/deals/${deal.id}`} className="link font-semibold">{deal.name}</Link>
+              <Link to={`/deals/${deal.id}`} className="link font-semibold">
+                {deal.name}
+              </Link>
               <span className="block text-sm">
                 <StageName stage={deal.stage} />
               </span>
@@ -23,7 +25,11 @@ export function LinkedDeals({ deals, onAdd }: { deals: LinkedDeal[]; onAdd: () =
             <span className="num flex-none text-right text-sm">
               <span className="block font-medium">{money(deal.value)}</span>
               <span className="text-muted">{date(deal.close_date)}</span>
-              {deal.days_late > 0 && <span className="mt-1 block font-sans"><LateTag days={deal.days_late} /></span>}
+              {deal.days_late > 0 && (
+                <span className="mt-1 block font-sans">
+                  <LateTag days={deal.days_late} />
+                </span>
+              )}
             </span>
           </Row>
         ))}

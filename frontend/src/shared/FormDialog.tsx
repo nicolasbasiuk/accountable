@@ -27,7 +27,9 @@ export function FormDialog<V extends FieldValues>({ title, submit, form, onSave,
   const unsaved = open && isDirty
 
   // Leaving the page closes the form too: with the browser's Back, or out of Accountable, where only the browser can ask.
-  const leaving = useBlocker(({ currentLocation, nextLocation }) => unsaved && currentLocation.pathname !== nextLocation.pathname)
+  const leaving = useBlocker(
+    ({ currentLocation, nextLocation }) => unsaved && currentLocation.pathname !== nextLocation.pathname,
+  )
   useBeforeUnload((event) => {
     if (unsaved) event.preventDefault()
   })
@@ -77,7 +79,11 @@ export function FormDialog<V extends FieldValues>({ title, submit, form, onSave,
   }
 
   return (
-    <Dialog.Root open={open} onOpenChange={(next) => !next && close()} onOpenChangeComplete={(next) => !next && onClosed()}>
+    <Dialog.Root
+      open={open}
+      onOpenChange={(next) => !next && close()}
+      onOpenChangeComplete={(next) => !next && onClosed()}
+    >
       <Dialog.Portal>
         <Dialog.Backdrop className={BACKDROP} />
         <Dialog.Viewport className={VIEWPORT}>

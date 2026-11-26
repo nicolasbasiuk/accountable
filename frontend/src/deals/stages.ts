@@ -16,8 +16,18 @@ const WHITE = 'var(--color-white)'
 
 /** A won deal shouldn't look like a warning, so Won is Midnight, and Raspberry only means late or overdue. */
 export const STAGE_LOOKS: Record<Stage, Look> = {
-  new: { fill: 'bg-sea-green', block: 'bg-sea-green text-midnight', color: 'var(--color-sea-green)', onColor: MIDNIGHT },
-  qualified: { fill: 'bg-marigold', block: 'bg-marigold text-midnight', color: 'var(--color-marigold)', onColor: MIDNIGHT },
+  new: {
+    fill: 'bg-sea-green',
+    block: 'bg-sea-green text-midnight',
+    color: 'var(--color-sea-green)',
+    onColor: MIDNIGHT,
+  },
+  qualified: {
+    fill: 'bg-marigold',
+    block: 'bg-marigold text-midnight',
+    color: 'var(--color-marigold)',
+    onColor: MIDNIGHT,
+  },
   proposal: { fill: 'bg-coral', block: 'bg-coral text-midnight', color: 'var(--color-coral)', onColor: MIDNIGHT },
   negotiation: { fill: 'bg-cerulean', block: 'bg-cerulean text-white', color: 'var(--color-cerulean)', onColor: WHITE },
   won: { fill: 'bg-midnight', block: 'bg-midnight text-white', color: MIDNIGHT, onColor: WHITE },

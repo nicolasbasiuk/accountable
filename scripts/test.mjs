@@ -1,4 +1,5 @@
 // npm test: the type check, pytest, Vitest and Playwright. All four run, even if one fails.
+// With --quick, it leaves out Playwright's end-to-end tests.
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
@@ -9,13 +10,16 @@ import { ROOT, accountableIsRunning, checkVersions, install, main } from './lib.
 const bin = (...parts) => path.join(ROOT, 'node_modules', ...parts)
 const tsc = bin('typescript', 'bin', 'tsc')
 
+const END_TO_END = 'End-to-end tests'
 const SUITES = [
   ['Type check, frontend', process.execPath, [tsc, '--noEmit', '-p', 'frontend']],
   ['Type check, end-to-end tests', process.execPath, [tsc, '--noEmit', '-p', 'e2e']],
   ['Backend tests', 'uv', ['run', '--no-sync', 'pytest', '-q']],
   ['Frontend tests', process.execPath, [bin('vitest', 'vitest.mjs'), 'run', '--root', 'frontend']],
-  ['End-to-end tests', process.execPath, [bin('@playwright', 'test', 'cli.js'), 'test', '-c', 'e2e']],
+  [END_TO_END, process.execPath, [bin('@playwright', 'test', 'cli.js'), 'test', '-c', 'e2e']],
 ]
+const quick = process.argv.includes('--quick')
+const suites = quick ? SUITES.filter(([name]) => name !== END_TO_END) : SUITES
 
 /** What's in the user's own data, to see that the tests leave it alone (R7). */
 const OWN_DATA = path.join(ROOT, 'data', 'accountable.db')
@@ -36,7 +40,7 @@ await main(async () => {
   delete env.npm_config_yes // It would answer the reset command's question in its own tests.
 
   const failed = []
-  for (const [name, command, args] of SUITES) {
+  for (const [name, command, args] of suites) {
     console.log(`\n${name}`)
     if (spawnSync(command, args, { cwd: ROOT, env, stdio: 'inherit' }).status !== 0) failed.push(name)
   }

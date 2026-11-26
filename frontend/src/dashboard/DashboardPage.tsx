@@ -30,10 +30,22 @@ function Shown({ dashboard }: { dashboard: Dashboard }) {
     >
       <Panel label="Figures" className="mb-4 px-7 py-5">
         <dl className="grid grid-cols-4">
-          <Figure label="Revenue won this month" amount={won_this_month.value} under={plural(won_this_month.deals, 'deal')} />
-          <Figure label="Revenue won in 12 months" amount={won_12_months.value} under={plural(won_12_months.deals, 'deal')} />
+          <Figure
+            label="Revenue won this month"
+            amount={won_this_month.value}
+            under={plural(won_this_month.deals, 'deal')}
+          />
+          <Figure
+            label="Revenue won in 12 months"
+            amount={won_12_months.value}
+            under={plural(won_12_months.deals, 'deal')}
+          />
           <Figure label="Open value" amount={open.value} under={plural(open.deals, 'deal')} />
-          <Figure label="Expected revenue" amount={expected} under={open.value > 0 ? `${share(expected / open.value)} of open value` : 'No open value'} />
+          <Figure
+            label="Expected revenue"
+            amount={expected}
+            under={open.value > 0 ? `${share(expected / open.value)} of open value` : 'No open value'}
+          />
         </dl>
       </Panel>
       <MonthCharts months={months} />

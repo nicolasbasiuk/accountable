@@ -23,7 +23,9 @@ def dashboard() -> dict:
         recent = timelines.newest(connection, RECENT)
 
     open_deals = [deal for deal in every if deal.stage in stages.OPEN]
-    in_period = [deal for deal in every if deal.stage in stages.CLOSED and starts[0] <= deal.close_date < _month_start(today, -1)]
+    in_period = [
+        deal for deal in every if deal.stage in stages.CLOSED and starts[0] <= deal.close_date < _month_start(today, -1)
+    ]
     won = [deal for deal in in_period if deal.stage == "won"]
     months = [_month(start, won) for start in starts]
     return {

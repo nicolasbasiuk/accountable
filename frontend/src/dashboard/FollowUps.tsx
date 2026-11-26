@@ -12,7 +12,9 @@ export function FollowUps({ followUps, today }: { followUps: FollowUp[]; today: 
   return (
     <HeadedPanel heading="Follow-ups" low>
       {followUps.length === 0 && (
-        <p className="mt-2 text-muted">Nothing to follow up in the next 14 days. A follow-up date on an activity puts it here.</p>
+        <p className="mt-2 text-muted">
+          Nothing to follow up in the next 14 days. A follow-up date on an activity puts it here.
+        </p>
       )}
       <Group heading="Overdue" followUps={overdue} today={today} />
       <Group heading="Due in the next 14 days" followUps={soon} today={today} />
@@ -59,8 +61,14 @@ function Item({ followUp, today }: { followUp: FollowUp; today: string }) {
         <EntryRecordLink record={followUp.record} />
       </span>
       <span className="justify-self-end text-right">
-        <time dateTime={followUp.follow_up_on} className="num block text-xs">{due(followUp.follow_up_on, today)}</time>
-        {late > 0 && <span className="tag mt-1"><Count amount={late} word="day" /></span>}
+        <time dateTime={followUp.follow_up_on} className="num block text-xs">
+          {due(followUp.follow_up_on, today)}
+        </time>
+        {late > 0 && (
+          <span className="tag mt-1">
+            <Count amount={late} word="day" />
+          </span>
+        )}
       </span>
     </li>
   )

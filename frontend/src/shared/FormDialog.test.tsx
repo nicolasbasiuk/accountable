@@ -20,7 +20,7 @@ function Example({ onSave, onClosed }: { onSave: (values: Values) => Promise<unk
   )
 }
 
-function show(onSave = vi.fn(async (_values: Values) => {})) {
+function show(onSave = vi.fn<(values: Values) => Promise<void>>(async () => {})) {
   const onClosed = vi.fn()
   const pages = [
     { path: '/', element: <p>The page before</p> },

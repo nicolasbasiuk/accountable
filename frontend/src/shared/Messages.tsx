@@ -29,7 +29,10 @@ function List() {
         {toast.type === 'problem' && <CircleAlert size={18} aria-hidden className="text-coral" />}
         <Toast.Title className="line-clamp-2 max-w-110 py-1 font-medium text-white" />
         <Toast.Action className="cursor-pointer rounded-tag px-3 py-1.5 font-semibold text-sea-green hover:bg-white/10" />
-        <Toast.Close aria-label="Close message" className="grid size-8 cursor-pointer place-items-center rounded-tag hover:bg-white/10">
+        <Toast.Close
+          aria-label="Close message"
+          className="grid size-8 cursor-pointer place-items-center rounded-tag hover:bg-white/10"
+        >
           <X size={16} aria-hidden />
         </Toast.Close>
       </Toast.Content>

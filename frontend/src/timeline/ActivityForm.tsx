@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useRef } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { changed, checkYear, required } from '../shared/checks'
 import { configQuery, type Config } from '../shared/config'
@@ -19,13 +19,24 @@ export type On = { contact_id: number } | { deal_id: number }
 
 type Props = { activity: ActivityEntry; on?: undefined } | { activity?: undefined; on: On }
 
+/** The server's time now, from its "now" as read at `readAt`. Read when checking, never while rendering. */
+function serverNow(now: string, readAt: number) {
+  return new Date(now).getTime() + Date.now() - readAt
+}
+
 export function ActivityForm(props: Props & { onClosed: () => void }) {
   // "Now" is the server's, as it is when the form opens.
   const { data, dataUpdatedAt, isFetchedAfterMount } = useQuery({ ...configQuery, refetchOnMount: 'always' })
   return isFetchedAfterMount && data && <Shown {...props} config={data} readAt={dataUpdatedAt} />
 }
 
-function Shown({ activity, on, config, readAt, onClosed }: Props & { config: Config; readAt: number; onClosed: () => void }) {
+function Shown({
+  activity,
+  on,
+  config,
+  readAt,
+  onClosed,
+}: Props & { config: Config; readAt: number; onClosed: () => void }) {
   const save = useSaveActivity(activity?.id)
   const defaultValues = {
     type: (activity?.type ?? 'note') as ActivityType,
@@ -34,7 +45,7 @@ function Shown({ activity, on, config, readAt, onClosed }: Props & { config: Con
     follow_up_on: activity?.follow_up_on ?? '',
   }
   // What the form started with, also when the entry is loaded again behind it.
-  const first = useRef(defaultValues).current
+  const [first] = useState(defaultValues)
   const form = useForm({ defaultValues: first })
   const { errors } = form.formState
 
@@ -42,8 +53,7 @@ function Shown({ activity, on, config, readAt, onClosed }: Props & { config: Con
     if (!text) return 'Enter a date and time.'
     const year = checkYear(text)
     if (year !== true) return year
-    const serverNow = new Date(config.now).getTime() + Date.now() - readAt
-    return new Date(text).getTime() <= serverNow || "This can't be in the future."
+    return new Date(text).getTime() <= serverNow(config.now, readAt) || "This can't be in the future."
   }
 
   return (
@@ -62,7 +72,13 @@ function Shown({ activity, on, config, readAt, onClosed }: Props & { config: Con
       }}
       onClosed={onClosed}
     >
-      <ChoiceField label="Type" className="col-span-2" options={TYPES} error={errors.type?.message} {...form.register('type')} />
+      <ChoiceField
+        label="Type"
+        className="col-span-2"
+        options={TYPES}
+        error={errors.type?.message}
+        {...form.register('type')}
+      />
       <TextArea
         label="Description"
         className="col-span-2"
@@ -76,7 +92,12 @@ function Shown({ activity, on, config, readAt, onClosed }: Props & { config: Con
         error={errors.happened_at?.message}
         {...form.register('happened_at', { validate: checkTime })}
       />
-      <DateField label="Follow up on" optional error={errors.follow_up_on?.message} {...form.register('follow_up_on', { validate: checkYear })} />
+      <DateField
+        label="Follow up on"
+        optional
+        error={errors.follow_up_on?.message}
+        {...form.register('follow_up_on', { validate: checkYear })}
+      />
     </FormDialog>
   )
 }

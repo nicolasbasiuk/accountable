@@ -117,7 +117,9 @@ def test_each_entry_names_its_record(api):
     on_deal = {"kind": "deal", "id": deal, "name": "Cloud migration", "organization": its_organization}
     on_contact = {"kind": "contact", "id": contact, "name": "Priya Nair", "organization": its_organization}
     records = [(entry["kind"], entry["record"]) for entry in api.get(f"/organizations/{organization}/timeline")]
-    assert sorted(records, key=str) == sorted([("activity", on_contact), ("activity", on_deal), ("stage_change", on_deal)], key=str)
+    assert sorted(records, key=str) == sorted(
+        [("activity", on_contact), ("activity", on_deal), ("stage_change", on_deal)], key=str
+    )
 
 
 def test_a_record_without_an_organization(api):
@@ -142,13 +144,29 @@ def test_times_leave_in_utc(api):
 def test_log_edit_and_delete(api, kind, record):
     record_id = getattr(api, record)()
     path = f"/{record}s/{record_id}"
-    activity = api.post("/activities", {"type": kind, "description": "First call", "follow_up_on": "2026-12-01", f"{record}_id": record_id}, 201)["id"]
+    activity = api.post(
+        "/activities",
+        {"type": kind, "description": "First call", "follow_up_on": "2026-12-01", f"{record}_id": record_id},
+        201,
+    )["id"]
     [entry] = api.get(f"{path}/timeline")
-    assert (entry["type"], entry["description"], entry["follow_up_on"], entry["done"]) == (kind, "First call", "2026-12-01", False)
+    assert (entry["type"], entry["description"], entry["follow_up_on"], entry["done"]) == (
+        kind,
+        "First call",
+        "2026-12-01",
+        False,
+    )
 
-    api.patch(f"/activities/{activity}", {"description": "Second call", "type": "note", "happened_at": "2026-11-02T09:30:00Z"})
+    api.patch(
+        f"/activities/{activity}", {"description": "Second call", "type": "note", "happened_at": "2026-11-02T09:30:00Z"}
+    )
     [entry] = api.get(f"{path}/timeline")
-    assert (entry["type"], entry["description"], entry["at"], entry["follow_up_on"]) == ("note", "Second call", "2026-11-02T09:30:00Z", "2026-12-01")
+    assert (entry["type"], entry["description"], entry["at"], entry["follow_up_on"]) == (
+        "note",
+        "Second call",
+        "2026-11-02T09:30:00Z",
+        "2026-12-01",
+    )
 
     api.delete(f"/activities/{activity}")
     assert api.get(f"{path}/timeline") == []
@@ -189,7 +207,9 @@ def test_logged_on_exactly_one_record(api):
     api.post("/activities", body, 422)
     api.post("/activities", {**body, "contact_id": contact, "deal_id": deal}, 422)
     assert api.post("/activities", {**body, "deal_id": 99}, 422)["fields"] == {"deal_id": "This deal no longer exists."}
-    assert api.post("/activities", {**body, "contact_id": 99}, 422)["fields"] == {"contact_id": "This contact no longer exists."}
+    assert api.post("/activities", {**body, "contact_id": 99}, 422)["fields"] == {
+        "contact_id": "This contact no longer exists."
+    }
 
 
 @pytest.mark.parametrize("description", ["", "   ", None])
@@ -199,7 +219,9 @@ def test_a_description_is_required(api, description):
     body = {"type": "note", "description": description, "contact_id": contact}
     assert api.post("/activities", body, 422)["fields"] == {"description": "Enter a description."}
     activity = api.activity(contact_id=contact)
-    assert api.patch(f"/activities/{activity}", {"description": description}, 422)["fields"] == {"description": "Enter a description."}
+    assert api.patch(f"/activities/{activity}", {"description": description}, 422)["fields"] == {
+        "description": "Enter a description."
+    }
 
 
 def test_the_time_cannot_be_in_the_future(api):
@@ -226,7 +248,12 @@ def test_a_year_typed_with_two_digits_is_refused(api, field, value):
     """A browser makes 0026 of 26."""
     contact = api.contact()
     message = {field: "Enter the year with four digits, such as 2026."}
-    assert api.post("/activities", {"type": "note", "description": "A", "contact_id": contact, field: value}, 422)["fields"] == message
+    assert (
+        api.post("/activities", {"type": "note", "description": "A", "contact_id": contact, field: value}, 422)[
+            "fields"
+        ]
+        == message
+    )
     activity = api.activity(contact_id=contact)
     assert api.patch(f"/activities/{activity}", {field: value}, 422)["fields"] == message
 

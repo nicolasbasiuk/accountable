@@ -54,7 +54,10 @@ def test_a_contact(api):
         assert saved["organization"]["id"] == organization
     # Deal activities and changes of stage are kept, without the contact.
     entries = api.get(f"/deals/{deals[0]}/timeline")
-    assert {(entry["kind"], entry["id"]) for entry in entries} == {("activity", on_deal), ("stage_change", change["id"])}
+    assert {(entry["kind"], entry["id"]) for entry in entries} == {
+        ("activity", on_deal),
+        ("stage_change", change["id"]),
+    }
     assert len(api.get(f"/organizations/{organization}/timeline")) == 2
     assert amount(activities) == 1
     with db.read() as connection:
@@ -89,11 +92,14 @@ def test_an_activity(api):
     assert [entry["id"] for entry in api.get(f"/contacts/{contact}/timeline")] == [kept]
 
 
-@pytest.mark.parametrize("path, numbers", [
-    ("organizations", {"contacts": 0, "deals": 0}),
-    ("contacts", {"deals": 0, "activities": 0, "follow_ups": 0}),
-    ("deals", {"activities": 0, "follow_ups": 0}),
-])
+@pytest.mark.parametrize(
+    "path, numbers",
+    [
+        ("organizations", {"contacts": 0, "deals": 0}),
+        ("contacts", {"deals": 0, "activities": 0, "follow_ups": 0}),
+        ("deals", {"activities": 0, "follow_ups": 0}),
+    ],
+)
 def test_nothing_linked(api, path, numbers):
     record_id = getattr(api, path.removesuffix("s"))()
     assert api.get(f"/{path}/{record_id}/deletion") == numbers

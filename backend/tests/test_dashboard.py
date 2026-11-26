@@ -49,17 +49,32 @@ def test_twelve_months(api):
     api.deal(value=4_000, stage="won", close_date="2026-02-01")
     months = api.get("/dashboard")["months"]
     assert [month["month"] for month in months] == [
-        "2025-12-01", "2026-01-01", "2026-02-01", "2026-03-01", "2026-04-01", "2026-05-01",
-        "2026-06-01", "2026-07-01", "2026-08-01", "2026-09-01", "2026-10-01", "2026-11-01",
+        "2025-12-01",
+        "2026-01-01",
+        "2026-02-01",
+        "2026-03-01",
+        "2026-04-01",
+        "2026-05-01",
+        "2026-06-01",
+        "2026-07-01",
+        "2026-08-01",
+        "2026-09-01",
+        "2026-10-01",
+        "2026-11-01",
     ]
-    assert [(month["value"], month["deals"]) for month in months] == [(1_000, 1), (0, 0), (7_000, 2)] + [(0, 0)] * 8 + [(2_000, 1)]
+    assert [(month["value"], month["deals"]) for month in months] == [(1_000, 1), (0, 0), (7_000, 2)] + [(0, 0)] * 8 + [
+        (2_000, 1)
+    ]
 
 
-@pytest.mark.parametrize("day, first, last", [
-    (date(2026, 1, 1), "2025-02-01", "2026-01-01"),
-    (date(2026, 12, 31), "2026-01-01", "2026-12-01"),
-    (date(2028, 2, 29), "2027-03-01", "2028-02-01"),
-])
+@pytest.mark.parametrize(
+    "day, first, last",
+    [
+        (date(2026, 1, 1), "2025-02-01", "2026-01-01"),
+        (date(2026, 12, 31), "2026-01-01", "2026-12-01"),
+        (date(2028, 2, 29), "2027-03-01", "2028-02-01"),
+    ],
+)
 def test_months_at_the_ends_of_a_year(api, on_day, day, first, last):
     on_day(day)
     months = [month["month"] for month in api.get("/dashboard")["months"]]
@@ -93,14 +108,17 @@ def test_by_stage(api):
 # Funnel (B4)
 
 
-@pytest.mark.parametrize("stage, expected", [
-    ("new", ["new"]),
-    ("qualified", ["new", "qualified"]),
-    ("proposal", ["new", "qualified", "proposal"]),
-    ("negotiation", ["new", "qualified", "proposal", "negotiation"]),
-    ("won", ["new", "qualified", "proposal", "negotiation", "won"]),
-    ("lost", ["new"]),
-])
+@pytest.mark.parametrize(
+    "stage, expected",
+    [
+        ("new", ["new"]),
+        ("qualified", ["new", "qualified"]),
+        ("proposal", ["new", "qualified", "proposal"]),
+        ("negotiation", ["new", "qualified", "proposal", "negotiation"]),
+        ("won", ["new", "qualified", "proposal", "negotiation", "won"]),
+        ("lost", ["new"]),
+    ],
+)
 def test_added_at_a_stage(api, stage, expected):
     api.deal(stage=stage)
     assert reached(api) == expected
@@ -127,13 +145,16 @@ def test_a_reopened_deal_does_not_count_as_won(api):
     assert reached(api) == ["new", "qualified", "proposal"]
 
 
-@pytest.mark.parametrize("stage, expected", [
-    ("new", ["new"]),
-    ("qualified", ["new", "qualified"]),
-    ("proposal", ["new", "qualified", "proposal"]),
-    ("negotiation", ["new", "qualified", "proposal", "negotiation"]),
-    ("won", ["new", "qualified", "proposal", "negotiation"]),
-])
+@pytest.mark.parametrize(
+    "stage, expected",
+    [
+        ("new", ["new"]),
+        ("qualified", ["new", "qualified"]),
+        ("proposal", ["new", "qualified", "proposal"]),
+        ("negotiation", ["new", "qualified", "proposal", "negotiation"]),
+        ("won", ["new", "qualified", "proposal", "negotiation"]),
+    ],
+)
 def test_a_lost_deal_counts_up_to_where_it_was_lost_from(api, stage, expected):
     deal = api.deal(stage=stage)
     api.move(deal, "lost")
@@ -172,7 +193,13 @@ def test_values_and_shares(api):
     api.deal(value=20_000, stage="qualified")
     api.deal(value=50_000, stage="won")
     rows = api.get("/dashboard")["funnel"]
-    assert [(row["deals"], row["value"]) for row in rows] == [(3, 100_000), (2, 70_000), (1, 50_000), (1, 50_000), (1, 50_000)]
+    assert [(row["deals"], row["value"]) for row in rows] == [
+        (3, 100_000),
+        (2, 70_000),
+        (1, 50_000),
+        (1, 50_000),
+        (1, 50_000),
+    ]
     assert [row["share"] for row in rows] == [None, pytest.approx(0.7), pytest.approx(5 / 7), 1, 1]
 
 
@@ -185,7 +212,10 @@ def test_won_in_the_funnel_equals_the_12_months_revenue(sample):
     """B2, B4"""
     answer = sample.get("/dashboard")
     won = answer["funnel"][-1]
-    assert (won["value"], won["deals"]) == (sum(month["value"] for month in answer["months"]), sum(month["deals"] for month in answer["months"]))
+    assert (won["value"], won["deals"]) == (
+        sum(month["value"] for month in answer["months"]),
+        sum(month["deals"] for month in answer["months"]),
+    )
     assert won["value"] == answer["figures"]["won_12_months"]["value"]
 
 
@@ -205,20 +235,29 @@ def test_the_figures_add_up_to_the_deals(sample):
 
 def test_follow_ups(api):
     contact = api.contact()
-    due = {name: api.activity(name, contact_id=contact, follow_up_on=day) for name, day in {
-        "In 14 days": "2026-12-08",
-        "In 15 days": "2026-12-09",
-        "Today": "2026-11-24",
-        "Yesterday": "2026-11-23",
-        "Long ago": "2026-01-05",
-        "Tomorrow": "2026-11-25",
-    }.items()}
+    due = {
+        name: api.activity(name, contact_id=contact, follow_up_on=day)
+        for name, day in {
+            "In 14 days": "2026-12-08",
+            "In 15 days": "2026-12-09",
+            "Today": "2026-11-24",
+            "Yesterday": "2026-11-23",
+            "Long ago": "2026-01-05",
+            "Tomorrow": "2026-11-25",
+        }.items()
+    }
     done = api.activity("Done", contact_id=contact, follow_up_on="2026-11-24")
     api.patch(f"/activities/{done}", {"done": True})
     api.activity("No follow-up", contact_id=contact)
 
     answer = api.get("/dashboard")
-    assert [entry["description"] for entry in answer["follow_ups"]] == ["Long ago", "Yesterday", "Today", "Tomorrow", "In 14 days"]
+    assert [entry["description"] for entry in answer["follow_ups"]] == [
+        "Long ago",
+        "Yesterday",
+        "Today",
+        "Tomorrow",
+        "In 14 days",
+    ]
     assert answer["overdue"] == 2
     assert answer["follow_ups"][0]["record"]["name"] == "Priya Nair"
 
@@ -238,5 +277,7 @@ def test_the_newest_10_entries_each_once(api):
     logged = [api.activity(f"Call {n}", deal_id=deal, happened_at=f"2026-11-{n:02d}T10:00:00Z") for n in range(1, 13)]
     change = api.move(deal, "qualified")
     recent = api.get("/dashboard")["recent"]
-    assert [(entry["kind"], entry["id"]) for entry in recent] == [("stage_change", change["id"])] + [("activity", one) for one in logged[:2:-1]]
+    assert [(entry["kind"], entry["id"]) for entry in recent] == [("stage_change", change["id"])] + [
+        ("activity", one) for one in logged[:2:-1]
+    ]
     assert len(recent) == 10

@@ -137,7 +137,9 @@ stage_changes = Table(
     one_of("from_stage", STAGES),
     one_of("to_stage", STAGES),
     percentage("from_probability"),
-    CheckConstraint(or_(column("from_status").is_(None), column("from_status").in_(STATUSES)), name="known_from_status"),
+    CheckConstraint(
+        or_(column("from_status").is_(None), column("from_status").in_(STATUSES)), name="known_from_status"
+    ),
 )
 
 app_info = Table(

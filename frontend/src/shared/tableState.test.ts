@@ -1,7 +1,12 @@
 import { expect, test } from 'vitest'
 import { fromAddress, toAddress, type TableRules } from './tableState'
 
-const rules: TableRules = { columns: ['name', 'value', 'close'], filters: ['lead', 'customer'], sort: 'close', descending: true }
+const rules: TableRules = {
+  columns: ['name', 'value', 'close'],
+  filters: ['lead', 'customer'],
+  sort: 'close',
+  descending: true,
+}
 const read = (address: string) => fromAddress(new URLSearchParams(address), rules)
 const write = (state: ReturnType<typeof read>) => toAddress(state, rules).toString()
 
@@ -23,7 +28,12 @@ test.each([
 })
 
 test('search, sort and filter are read', () => {
-  expect(read('search=a&filter=customer&sort=-name')).toEqual({ search: 'a', sort: 'name', descending: true, filter: 'customer' })
+  expect(read('search=a&filter=customer&sort=-name')).toEqual({
+    search: 'a',
+    sort: 'name',
+    descending: true,
+    filter: 'customer',
+  })
   expect(read('sort=value')).toMatchObject({ sort: 'value', descending: false })
 })
 

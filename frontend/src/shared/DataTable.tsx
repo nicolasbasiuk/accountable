@@ -82,7 +82,8 @@ function sortFn<T extends Row>(order?: readonly string[]): SortFn<Features, T> {
   }
 }
 
-const blankAsUndefined = (value: string | number | null | undefined) => (value === null || value === '' ? undefined : value)
+const blankAsUndefined = (value: string | number | null | undefined) =>
+  value === null || value === '' ? undefined : value
 
 export function DataTable<T extends Row>(props: Props<T>) {
   const { what, rows, columns, searched, filter, path, empty, addButton, onEdit, onDelete } = props
@@ -150,7 +151,11 @@ export function DataTable<T extends Row>(props: Props<T>) {
     <>
       <div className="mb-4 flex items-center gap-4">
         <div className="relative w-80">
-          <Search size={18} aria-hidden className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-muted" />
+          <Search
+            size={18}
+            aria-hidden
+            className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-muted"
+          />
           <input
             id={searchId}
             type="search"
@@ -177,7 +182,9 @@ export function DataTable<T extends Row>(props: Props<T>) {
           </div>
         )}
         <p role="status" className="text-muted">
-          <span className="num text-sm">{shown.length === rows.length ? rows.length : `${shown.length} of ${rows.length}`}</span>{' '}
+          <span className="num text-sm">
+            {shown.length === rows.length ? rows.length : `${shown.length} of ${rows.length}`}
+          </span>{' '}
           {plural(rows.length, what).replace(/^\d+ /, '')}
         </p>
         <div className="ml-auto">{addButton}</div>
@@ -187,7 +194,9 @@ export function DataTable<T extends Row>(props: Props<T>) {
         {rows.length === 0 ? (
           <EmptyState action={addButton}>{empty}</EmptyState>
         ) : shown.length === 0 ? (
-          <EmptyState action={<Button onClick={() => change({ search: '', filter: '' })}>Show all {what}s</Button>}>No {what}s match.</EmptyState>
+          <EmptyState action={<Button onClick={() => change({ search: '', filter: '' })}>Show all {what}s</Button>}>
+            No {what}s match.
+          </EmptyState>
         ) : (
           <div className="min-h-0 overflow-y-auto">
             <table className="w-full table-fixed border-separate border-spacing-0">

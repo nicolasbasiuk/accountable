@@ -1,4 +1,18 @@
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, LabelList, Rectangle, ReferenceDot, ResponsiveContainer, Tooltip, XAxis, YAxis, type RectangleProps } from 'recharts'
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  LabelList,
+  Rectangle,
+  ReferenceDot,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  type RectangleProps,
+} from 'recharts'
 import { money, monthAndYear, monthName, plural, shortMoney } from '../shared/format'
 import { ChartPanel, Tip } from './ChartPanel'
 import type { Month } from './queries'
@@ -20,7 +34,9 @@ type TipProps = { active?: boolean; payload?: readonly { payload?: Month }[] }
 
 function MonthTip({ active, payload }: TipProps) {
   const month = payload?.[0]?.payload
-  return active && month ? <Tip heading={monthAndYear(month.month)} lines={[money(month.value), plural(month.deals, 'deal')]} /> : null
+  return active && month ? (
+    <Tip heading={monthAndYear(month.month)} lines={[money(month.value), plural(month.deals, 'deal')]} />
+  ) : null
 }
 
 export function MonthCharts({ months }: { months: Month[] }) {
@@ -31,14 +47,37 @@ export function MonthCharts({ months }: { months: Month[] }) {
     <div className="mb-4 grid grid-cols-[minmax(0,3fr)_minmax(0,2fr)] gap-4">
       <ChartPanel
         heading="Revenue won by month"
-        table={{ headings: ['Month', 'Revenue won'], rows: months.map(({ month, value }) => [monthAndYear(month), money(value)]) }}
+        table={{
+          headings: ['Month', 'Revenue won'],
+          rows: months.map(({ month, value }) => [monthAndYear(month), money(value)]),
+        }}
       >
         <div className="mt-3" role="group" aria-label="Line chart of the revenue won in each of the last 12 months">
           <ResponsiveContainer width="100%" height={HEIGHT} initialDimension={{ width: 600, height: HEIGHT }}>
             <AreaChart data={months} margin={{ top: 14, right: 8, bottom: 0, left: 0 }}>
               <CartesianGrid vertical={false} syncWithTicks stroke={HAIR} />
-              <XAxis dataKey="month" tickFormatter={monthName} tick={TEXT} tickLine={false} axisLine={false} interval={0} height={24} tickMargin={5.5} padding={{ left: 12, right: 78 }} />
-              <YAxis tickFormatter={shortMoney} tick={TEXT} tickLine={false} axisLine={false} width={52} tickMargin={4} ticks={ticks} interval={0} domain={[0, top]} />
+              <XAxis
+                dataKey="month"
+                tickFormatter={monthName}
+                tick={TEXT}
+                tickLine={false}
+                axisLine={false}
+                interval={0}
+                height={24}
+                tickMargin={5.5}
+                padding={{ left: 12, right: 78 }}
+              />
+              <YAxis
+                tickFormatter={shortMoney}
+                tick={TEXT}
+                tickLine={false}
+                axisLine={false}
+                width={52}
+                tickMargin={4}
+                ticks={ticks}
+                interval={0}
+                domain={[0, top]}
+              />
               <Tooltip content={<MonthTip />} isAnimationActive={false} cursor={{ stroke: 'var(--color-sea-mist)' }} />
               <Area
                 dataKey="value"
@@ -59,12 +98,28 @@ export function MonthCharts({ months }: { months: Month[] }) {
       </ChartPanel>
       <ChartPanel
         heading="Deals won by month"
-        table={{ headings: ['Month', 'Deals won'], rows: months.map(({ month, deals }) => [monthAndYear(month), deals]) }}
+        table={{
+          headings: ['Month', 'Deals won'],
+          rows: months.map(({ month, deals }) => [monthAndYear(month), deals]),
+        }}
       >
-        <div className="mt-3" role="group" aria-label="Bar chart of the number of deals won in each of the last 12 months">
+        <div
+          className="mt-3"
+          role="group"
+          aria-label="Bar chart of the number of deals won in each of the last 12 months"
+        >
           <ResponsiveContainer width="100%" height={HEIGHT} initialDimension={{ width: 400, height: HEIGHT }}>
             <BarChart data={months} margin={{ top: 14, right: 8, bottom: 0, left: 4 }} barCategoryGap={5}>
-              <XAxis dataKey="month" tickFormatter={monthName} tick={TEXT} tickLine={false} axisLine={{ stroke: HAIR }} interval={0} height={24} tickMargin={5.5} />
+              <XAxis
+                dataKey="month"
+                tickFormatter={monthName}
+                tick={TEXT}
+                tickLine={false}
+                axisLine={{ stroke: HAIR }}
+                interval={0}
+                height={24}
+                tickMargin={5.5}
+              />
               <Tooltip content={<MonthTip />} isAnimationActive={false} cursor={{ fill: 'var(--color-page)' }} />
               <YAxis hide domain={[0, (most: number) => Math.max(most, 1) * 1.25]} />
               {/* A shape of its own, because without one a month of 0 gets no number. */}

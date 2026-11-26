@@ -53,10 +53,24 @@ function Shown({ contact }: { contact: ContactDetails }) {
               <Details
                 fields={[
                   ['Status', <StatusName status={contact.status} />],
-                  ['Organization', organization && <Link to={`/organizations/${organization.id}`} className="link">{organization.name}</Link>],
+                  [
+                    'Organization',
+                    organization && (
+                      <Link to={`/organizations/${organization.id}`} className="link">
+                        {organization.name}
+                      </Link>
+                    ),
+                  ],
                   ['Job title', contact.job_title],
                   ['Email', email && <EmailLink email={email} />],
-                  ['Phone', phone && <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} className="link num text-sm">{phone}</a>],
+                  [
+                    'Phone',
+                    phone && (
+                      <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} className="link num text-sm">
+                        {phone}
+                      </a>
+                    ),
+                  ],
                 ]}
               />
             </HeadedPanel>
@@ -67,7 +81,9 @@ function Shown({ contact }: { contact: ContactDetails }) {
         <Timeline area="contacts" id={id} on={{ contact_id: id }} />
       </RecordColumns>
       {open === 'edit' && <ContactForm contact={contact} onClosed={close} />}
-      {open === 'deal' && <DealForm preset={{ contact_id: id, organization_id: organization?.id ?? null }} onClosed={close} />}
+      {open === 'deal' && (
+        <DealForm preset={{ contact_id: id, organization_id: organization?.id ?? null }} onClosed={close} />
+      )}
       {open === 'delete' && (
         <ConfirmDelete
           what="contact"

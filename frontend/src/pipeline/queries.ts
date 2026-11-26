@@ -39,11 +39,14 @@ export function useMoveCard() {
   const mutation = useMutation({
     mutationKey: CARD_MOVE,
     scope: { id: CARD_MOVE[0]! },
-    mutationFn: ({ move: { id, ...to } }: NamedMove) => post<{ stage_change: StageChange | null }>(`/deals/${id}/move`, to),
+    mutationFn: ({ move: { id, ...to } }: NamedMove) =>
+      post<{ stage_change: StageChange | null }>(`/deals/${id}/move`, to),
     onSuccess: ({ stage_change }, { move, name }) => {
       client.setQueryData(boardQuery.queryKey, (board) => board && moveCard(board, move, config))
       if (!stage_change) return
-      showMove(`Moved ${name} to ${stageInfo(config, stage_change.to_stage).name}.`, () => undo.mutate({ id: move.id, stage_change_id: stage_change.id }))
+      showMove(`Moved ${name} to ${stageInfo(config, stage_change.to_stage).name}.`, () =>
+        undo.mutate({ id: move.id, stage_change_id: stage_change.id }),
+      )
     },
     onError: (error, { move }) => {
       setMoves(moves.filter((other) => other !== move))
@@ -66,7 +69,8 @@ function useUndo() {
   const client = useQueryClient()
   return useMutation({
     scope: { id: CARD_MOVE[0]! },
-    mutationFn: ({ id, stage_change_id }: { id: number; stage_change_id: number }) => post(`/deals/${id}/undo`, { stage_change_id }),
+    mutationFn: ({ id, stage_change_id }: { id: number; stage_change_id: number }) =>
+      post(`/deals/${id}/undo`, { stage_change_id }),
     onError: (error) => {
       showProblem(isConflict(error) ? explain(error) : `Not undone. ${explain(error)}`)
       return client.invalidateQueries()

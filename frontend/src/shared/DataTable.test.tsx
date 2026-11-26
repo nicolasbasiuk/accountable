@@ -5,7 +5,14 @@ import { RouterProvider } from 'react-router/dom'
 import { expect, test, vi } from 'vitest'
 import { DataTable, type Column, type Filter } from './DataTable'
 
-type Person = { id: number; name: string; status: string; town: string | null; value: number | null; day: string | null }
+type Person = {
+  id: number
+  name: string
+  status: string
+  town: string | null
+  value: number | null
+  day: string | null
+}
 
 const people: Person[] = [
   { id: 1, name: 'Wen Zhao', status: 'customer', town: 'Upland', value: 900, day: '2026-11-24' },
@@ -125,7 +132,10 @@ test('always says how many rows show', async () => {
 test('filters by status, with counts that follow the search', async () => {
   const user = userEvent.setup()
   show()
-  const labels = () => within(screen.getByRole('group', { name: 'Status' })).getAllByRole('button').map(({ textContent }) => textContent)
+  const labels = () =>
+    within(screen.getByRole('group', { name: 'Status' }))
+      .getAllByRole('button')
+      .map(({ textContent }) => textContent)
   expect(labels()).toEqual(['All 4', 'Lead 2', 'Qualified 1', 'Customer 1'])
 
   await user.click(screen.getByRole('button', { name: /^Lead/ }))

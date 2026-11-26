@@ -16,7 +16,9 @@ import { OrganizationForm } from './OrganizationForm'
 import { organizationQuery, type OrganizationDetails } from './queries'
 import { websiteLink } from './website'
 
-const missing = <NotFound what="This organization no longer exists" listName="Organizations" listPath="/organizations" />
+const missing = (
+  <NotFound what="This organization no longer exists" listName="Organizations" listPath="/organizations" />
+)
 
 export function OrganizationPage() {
   const id = recordId(useParams().id)
@@ -57,7 +59,14 @@ function Shown({ organization }: { organization: OrganizationDetails }) {
               </dl>
               <Details
                 fields={[
-                  ['Website', website && <a href={websiteLink(website)} target="_blank" rel="noreferrer" className="link">{website}</a>],
+                  [
+                    'Website',
+                    website && (
+                      <a href={websiteLink(website)} target="_blank" rel="noreferrer" className="link">
+                        {website}
+                      </a>
+                    ),
+                  ],
                   ['Industry', organization.industry],
                   ['Notes', organization.notes && <span className="whitespace-pre-line">{organization.notes}</span>],
                 ]}
@@ -69,7 +78,9 @@ function Shown({ organization }: { organization: OrganizationDetails }) {
                 {contacts.map((contact) => (
                   <Row key={contact.id}>
                     <span className="min-w-0">
-                      <Link to={`/contacts/${contact.id}`} className="link font-semibold">{contact.name}</Link>
+                      <Link to={`/contacts/${contact.id}`} className="link font-semibold">
+                        {contact.name}
+                      </Link>
                       {contact.job_title && <span className="block text-sm text-muted">{contact.job_title}</span>}
                     </span>
                     <StatusName status={contact.status} />

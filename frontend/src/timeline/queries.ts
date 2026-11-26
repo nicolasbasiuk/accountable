@@ -20,7 +20,14 @@ export type ActivityEntry = {
   record: EntryRecord
 }
 
-export type StageChangeEntry = { kind: 'stage_change'; id: number; at: string; from_stage: Stage; to_stage: Stage; record: EntryRecord }
+export type StageChangeEntry = {
+  kind: 'stage_change'
+  id: number
+  at: string
+  from_stage: Stage
+  to_stage: Stage
+  record: EntryRecord
+}
 
 export type Entry = ActivityEntry | StageChangeEntry
 

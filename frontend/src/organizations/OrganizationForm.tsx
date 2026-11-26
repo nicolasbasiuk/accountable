@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useRef } from 'react'
+import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { changed, required } from '../shared/checks'
 import { SuggestField, TextArea, TextField } from '../shared/fields'
@@ -20,7 +20,7 @@ export function OrganizationForm({ organization, onClosed }: { organization?: Ex
     notes: organization?.notes ?? '',
   }
   // The form keeps what it started with, also when the organization is loaded again behind it.
-  const first = useRef(defaultValues).current
+  const [first] = useState(defaultValues)
   const form = useForm({ defaultValues: first })
   const { errors } = form.formState
   const industries = [...new Set((others.data ?? []).flatMap(({ industry }) => industry ?? []))].sort()
@@ -36,16 +36,39 @@ export function OrganizationForm({ organization, onClosed }: { organization?: Ex
       }}
       onClosed={onClosed}
     >
-      <TextField label="Name" className="col-span-2" error={errors.name?.message} {...form.register('name', required('Enter a name.'))} />
-      <TextField label="Website" optional error={errors.website?.message} {...form.register('website', { validate: checkWebsite })} />
+      <TextField
+        label="Name"
+        className="col-span-2"
+        error={errors.name?.message}
+        {...form.register('name', required('Enter a name.'))}
+      />
+      <TextField
+        label="Website"
+        optional
+        error={errors.website?.message}
+        {...form.register('website', { validate: checkWebsite })}
+      />
       <Controller
         control={form.control}
         name="industry"
         render={({ field, fieldState }) => (
-          <SuggestField label="Industry" optional suggestions={industries} value={field.value} onChange={field.onChange} error={fieldState.error?.message} />
+          <SuggestField
+            label="Industry"
+            optional
+            suggestions={industries}
+            value={field.value}
+            onChange={field.onChange}
+            error={fieldState.error?.message}
+          />
         )}
       />
-      <TextArea label="Notes" optional className="col-span-2" error={errors.notes?.message} {...form.register('notes')} />
+      <TextArea
+        label="Notes"
+        optional
+        className="col-span-2"
+        error={errors.notes?.message}
+        {...form.register('notes')}
+      />
     </FormDialog>
   )
 }

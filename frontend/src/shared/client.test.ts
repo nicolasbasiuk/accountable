@@ -1,8 +1,16 @@
 import { expect, test, vi } from 'vitest'
 import { explain, get, isConflict, isNotFound, patch, post, remove, type ApiError } from './client'
 
-const answer = (response: () => Response | Promise<Response>) => vi.stubGlobal('fetch', vi.fn(async () => response()))
-const problem = async (work: Promise<unknown>) => (await work.then(() => undefined, (error) => error)) as ApiError
+const answer = (response: () => Response | Promise<Response>) =>
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async () => response()),
+  )
+const problem = async (work: Promise<unknown>) =>
+  (await work.then(
+    () => undefined,
+    (error) => error,
+  )) as ApiError
 
 test('sends and reads JSON', async () => {
   answer(() => Response.json({ id: 7 }))
@@ -19,7 +27,11 @@ test('each kind of request', async () => {
   await get('/deals')
   await patch('/deals/1', {})
   await remove('/deals/1')
-  expect(vi.mocked(fetch).mock.calls.map(([path, options]) => `${options!.method} ${path as string}`)).toEqual(['GET /api/deals', 'PATCH /api/deals/1', 'DELETE /api/deals/1'])
+  expect(vi.mocked(fetch).mock.calls.map(([path, options]) => `${options!.method} ${path as string}`)).toEqual([
+    'GET /api/deals',
+    'PATCH /api/deals/1',
+    'DELETE /api/deals/1',
+  ])
 })
 
 test('field problems', async () => {

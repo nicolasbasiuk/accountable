@@ -16,11 +16,24 @@ const config: Config = {
     { key: 'negotiation', name: 'Negotiation', probability: 75, open: true },
   ],
 }
-const deal: EntryRecord = { kind: 'deal', id: 7, name: 'Cloud migration', organization: { id: 1, name: 'Upland Water' } }
+const deal: EntryRecord = {
+  kind: 'deal',
+  id: 7,
+  name: 'Cloud migration',
+  organization: { id: 1, name: 'Upland Water' },
+}
 const contact: EntryRecord = { kind: 'contact', id: 3, name: 'Priya Nair', organization: null }
 
 const activity = (id: number, more: object): Entry => ({
-  kind: 'activity', id, at: '2026-11-20T12:00:00Z', type: 'call', description: `Call ${id}`, follow_up_on: null, done: false, record: deal, ...more,
+  kind: 'activity',
+  id,
+  at: '2026-11-20T12:00:00Z',
+  type: 'call',
+  description: `Call ${id}`,
+  follow_up_on: null,
+  done: false,
+  record: deal,
+  ...more,
 })
 
 const entries: Entry[] = [
@@ -28,7 +41,14 @@ const entries: Entry[] = [
   activity(2, { follow_up_on: '2026-11-24', type: 'email', record: contact }),
   activity(3, { follow_up_on: '2026-11-01', done: true, type: 'note' }),
   activity(4, {}),
-  { kind: 'stage_change', id: 1, at: '2026-11-19T12:00:00Z', from_stage: 'proposal', to_stage: 'negotiation', record: deal },
+  {
+    kind: 'stage_change',
+    id: 1,
+    at: '2026-11-19T12:00:00Z',
+    from_stage: 'proposal',
+    to_stage: 'negotiation',
+    record: deal,
+  },
 ]
 
 let changes: { method: string; path: string; body: unknown }[]
@@ -48,7 +68,13 @@ async function show(area: Area, id: number, list = entries) {
   })
   const client = createQueryClient()
   client.setQueryData(configQuery.queryKey, config)
-  const timeline = <Timeline area={area} id={id} on={area === 'deals' ? { deal_id: id } : area === 'contacts' ? { contact_id: id } : undefined} />
+  const timeline = (
+    <Timeline
+      area={area}
+      id={id}
+      on={area === 'deals' ? { deal_id: id } : area === 'contacts' ? { contact_id: id } : undefined}
+    />
+  )
   render(
     <QueryClientProvider client={client}>
       <RouterProvider router={createMemoryRouter([{ path: '*', element: timeline }])} />
@@ -69,7 +95,7 @@ test('an activity can be edited and deleted, and a change of stage cannot', asyn
   expect(within(change).queryByRole('checkbox')).toBeNull()
 })
 
-test("an entry of another record names it and links to it", async () => {
+test('an entry of another record names it and links to it', async () => {
   await show('deals', 7)
   expect(within(item('Call 2')).getByRole('link', { name: 'Priya Nair' })).toHaveAttribute('href', '/contacts/3')
   // Its own page doesn't name itself.
@@ -83,7 +109,11 @@ test('an organization names the record of every entry', async () => {
     const { kind, id, name, organization } = entry.record
     expect(listed.getByRole('link', { name })).toHaveAttribute('href', `/${kind}s/${id}`)
     // Its organization is a record too, so its name is also a link.
-    if (organization) expect(listed.getByRole('link', { name: organization.name })).toHaveAttribute('href', `/organizations/${organization.id}`)
+    if (organization)
+      expect(listed.getByRole('link', { name: organization.name })).toHaveAttribute(
+        'href',
+        `/organizations/${organization.id}`,
+      )
     expect(listed.getAllByRole('link')).toHaveLength(organization ? 2 : 1)
   }
   expect(item('Call 1')).toHaveTextContent('Cloud migration, Upland Water')
@@ -131,7 +161,9 @@ test('logs an activity on the record, leaving "now" to the server', async () => 
   await user.type(screen.getByRole('textbox', { name: 'Description' }), 'Sent the plan')
   await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Log activity' }))
   await vi.waitFor(() =>
-    expect(changes).toEqual([{ method: 'POST', path: '/api/activities', body: { contact_id: 3, type: 'email', description: 'Sent the plan' } }]),
+    expect(changes).toEqual([
+      { method: 'POST', path: '/api/activities', body: { contact_id: 3, type: 'email', description: 'Sent the plan' } },
+    ]),
   )
 })
 
@@ -140,7 +172,9 @@ test('an edit sends only what changed', async () => {
   await user.click(screen.getByRole('button', { name: 'Edit "Call 1"' }))
   await user.clear(await within(await screen.findByRole('dialog')).findByLabelText(/Follow up on/))
   await user.click(screen.getByRole('button', { name: 'Save changes' }))
-  await vi.waitFor(() => expect(changes).toEqual([{ method: 'PATCH', path: '/api/activities/1', body: { follow_up_on: null } }]))
+  await vi.waitFor(() =>
+    expect(changes).toEqual([{ method: 'PATCH', path: '/api/activities/1', body: { follow_up_on: null } }]),
+  )
 })
 
 test('a description is required', async () => {
@@ -157,7 +191,9 @@ test.each([/Follow up on/, /Happened/])('a year typed with two digits is refused
   const form = within(await screen.findByRole('dialog'))
   await user.type(await form.findByRole('textbox', { name: 'Description' }), 'Sent the plan')
   const field = form.getByLabelText(label)
-  fireEvent.change(field, { target: { value: field.getAttribute('type') === 'date' ? '0026-11-11' : '0026-11-11T10:00' } })
+  fireEvent.change(field, {
+    target: { value: field.getAttribute('type') === 'date' ? '0026-11-11' : '0026-11-11T10:00' },
+  })
   await user.click(form.getByRole('button', { name: 'Log activity' }))
   expect(form.getByLabelText(label)).toHaveAccessibleDescription('Enter the year with four digits, such as 2026.')
   expect(changes).toEqual([])

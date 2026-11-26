@@ -106,7 +106,10 @@ test('loads and saves without the internet', async () => {
 test('refetches when the window gets the focus, and when the tab is shown', async () => {
   client.mount()
   refetchOnFocus()
-  for (const [target, event] of [[window, 'focus'], [document, 'visibilitychange']] as const) {
+  for (const [target, event] of [
+    [window, 'focus'],
+    [document, 'visibilitychange'],
+  ] as const) {
     reads = []
     target.dispatchEvent(new Event(event))
     await vi.waitFor(() => expect(reads.sort()).toEqual(['board', 'dashboard']))

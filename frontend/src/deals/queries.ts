@@ -21,7 +21,8 @@ export type LinkedDeal = Pick<Deal, 'id' | 'name' | 'stage' | 'value' | 'close_d
 
 export const dealsQuery = queryOptions({ queryKey: ['deals'], queryFn: () => get<Deal[]>('/deals') })
 
-export const dealQuery = (id: number) => queryOptions({ queryKey: ['deals', id], queryFn: () => get<Deal>(`/deals/${id}`) })
+export const dealQuery = (id: number) =>
+  queryOptions({ queryKey: ['deals', id], queryFn: () => get<Deal>(`/deals/${id}`) })
 
 /** Adds one, or edits the one with the id. */
 export const useSaveDeal = (id?: number) =>

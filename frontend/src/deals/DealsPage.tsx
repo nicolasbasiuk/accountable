@@ -17,24 +17,64 @@ import { STAGE_ORDER } from './stages'
 const path = ({ id }: Deal) => `/deals/${id}`
 
 const columns: Column<Deal>[] = [
-  { id: 'name', heading: 'Name', value: (row) => row.name, cell: (row) => <Link to={path(row)} className="link font-semibold">{row.name}</Link> },
+  {
+    id: 'name',
+    heading: 'Name',
+    value: (row) => row.name,
+    cell: (row) => (
+      <Link to={path(row)} className="link font-semibold">
+        {row.name}
+      </Link>
+    ),
+  },
   {
     id: 'organization',
     heading: 'Organization',
     value: (row) => row.organization?.name,
-    cell: (row) => row.organization && <Link to={`/organizations/${row.organization.id}`} className="link">{row.organization.name}</Link>,
+    cell: (row) =>
+      row.organization && (
+        <Link to={`/organizations/${row.organization.id}`} className="link">
+          {row.organization.name}
+        </Link>
+      ),
     width: '15.5%',
   },
   {
     id: 'contact',
     heading: 'Main contact',
     value: (row) => row.contact?.name,
-    cell: (row) => row.contact && <Link to={`/contacts/${row.contact.id}`} className="link">{row.contact.name}</Link>,
+    cell: (row) =>
+      row.contact && (
+        <Link to={`/contacts/${row.contact.id}`} className="link">
+          {row.contact.name}
+        </Link>
+      ),
     width: '12.5%',
   },
-  { id: 'stage', heading: 'Stage', value: (row) => row.stage, cell: (row) => <StageName stage={row.stage} />, order: STAGE_ORDER, width: '118px' },
-  { id: 'value', heading: 'Value', value: (row) => row.value, cell: (row) => money(row.value), look: 'number', width: '88px' },
-  { id: 'probability', heading: 'Probability', value: (row) => row.probability, cell: (row) => percent(row.probability), look: 'number', width: '94px' },
+  {
+    id: 'stage',
+    heading: 'Stage',
+    value: (row) => row.stage,
+    cell: (row) => <StageName stage={row.stage} />,
+    order: STAGE_ORDER,
+    width: '118px',
+  },
+  {
+    id: 'value',
+    heading: 'Value',
+    value: (row) => row.value,
+    cell: (row) => money(row.value),
+    look: 'number',
+    width: '88px',
+  },
+  {
+    id: 'probability',
+    heading: 'Probability',
+    value: (row) => row.probability,
+    cell: (row) => percent(row.probability),
+    look: 'number',
+    width: '94px',
+  },
   {
     id: 'expected',
     heading: 'Expected revenue',
@@ -50,7 +90,11 @@ const columns: Column<Deal>[] = [
     cell: (row) => (
       <>
         {date(row.close_date)}
-        {row.days_late > 0 && <span className="mt-1 block font-sans"><LateTag days={row.days_late} /></span>}
+        {row.days_late > 0 && (
+          <span className="mt-1 block font-sans">
+            <LateTag days={row.days_late} />
+          </span>
+        )}
       </>
     ),
     look: 'date',
@@ -65,7 +109,12 @@ export function DealsPage() {
   const query = useQuery(dealsQuery)
   const { stages } = useConfig()
   const searched = useCallback(
-    (row: Deal) => [row.name, row.organization?.name, row.contact?.name, stages.find(({ key }) => key === row.stage)?.name],
+    (row: Deal) => [
+      row.name,
+      row.organization?.name,
+      row.contact?.name,
+      stages.find(({ key }) => key === row.stage)?.name,
+    ],
     [stages],
   )
   const close = () => setOpen(null)
@@ -90,7 +139,9 @@ export function DealsPage() {
       </Loaded>
       {open?.what === 'add' && <DealForm onClosed={close} />}
       {open?.what === 'edit' && <DealForm deal={open.row} onClosed={close} />}
-      {open?.what === 'delete' && <ConfirmDelete what="deal" name={open.row.name} path={path(open.row)} onClosed={close} />}
+      {open?.what === 'delete' && (
+        <ConfirmDelete what="deal" name={open.row.name} path={path(open.row)} onClosed={close} />
+      )}
     </Page>
   )
 }

@@ -73,7 +73,11 @@ def test_spread_over_time(rows, day):
     won = [row for row in rows["deals"] if row["stage"] == "won"]
     assert {(row["close_date"].year, row["close_date"].month) for row in won} == set(last_12_months(day))
     assert all(row["close_date"] <= day for row in rows["deals"] if row["stage"] in CLOSED)
-    assert all((row["close_date"].year, row["close_date"].month) in last_12_months(day) for row in rows["deals"] if row["stage"] == "lost")
+    assert all(
+        (row["close_date"].year, row["close_date"].month) in last_12_months(day)
+        for row in rows["deals"]
+        if row["stage"] == "lost"
+    )
 
     open_deals = [row for row in rows["deals"] if row["stage"] in OPEN]
     late = [row for row in open_deals if row["close_date"] < day]

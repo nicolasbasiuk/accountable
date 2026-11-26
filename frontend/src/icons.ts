@@ -5,7 +5,15 @@ import { createLucideIcon } from 'lucide-react'
 export const OrganizationsIcon = createLucideIcon({
   name: 'organizations',
   size: 24,
-  node: [['path', { d: 'M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M16 9h2a2 2 0 0 1 2 2v10M2 21h20M8 7h4M8 11h4M8 15h4', key: 'building' }]],
+  node: [
+    [
+      'path',
+      {
+        d: 'M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M16 9h2a2 2 0 0 1 2 2v10M2 21h20M8 7h4M8 11h4M8 15h4',
+        key: 'building',
+      },
+    ],
+  ],
 })
 
 export const DealsIcon = createLucideIcon({

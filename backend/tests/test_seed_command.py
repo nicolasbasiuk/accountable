@@ -2,9 +2,9 @@ import io
 from pathlib import Path
 
 import pytest
-import seed
 from sqlalchemy import func, insert, select
 
+import seed
 from accountable import db, seeding
 from accountable.tables import organizations
 

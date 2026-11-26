@@ -1,6 +1,7 @@
 """Contacts (C1 to C3)."""
 
-from sqlalchemy import Connection, Row, Select, delete as delete_from, func, insert, or_, select, update
+from sqlalchemy import Connection, Row, Select, func, insert, select, update
+from sqlalchemy import delete as delete_from
 
 from accountable import clock, db, stages, timelines
 from accountable.errors import Invalid, NotFound
@@ -13,7 +14,8 @@ def list_all() -> list[dict]:
         last = timelines.last_activity(connection)
         following = timelines.next_follow_up(connection)
     return [
-        {**_contact(row), "last_activity": clock.as_text(last.get(row.id)), "next_follow_up": following.get(row.id)} for row in rows
+        {**_contact(row), "last_activity": clock.as_text(last.get(row.id)), "next_follow_up": following.get(row.id)}
+        for row in rows
     ]
 
 
@@ -102,5 +104,8 @@ def _contact(row: Row) -> dict:
 
 def _check_organization(connection: Connection, values: dict) -> None:
     organization_id = values.get("organization_id")
-    if organization_id and not connection.execute(select(organizations.c.id).where(organizations.c.id == organization_id)).first():
+    if (
+        organization_id
+        and not connection.execute(select(organizations.c.id).where(organizations.c.id == organization_id)).first()
+    ):
         raise Invalid({"organization_id": "This organization no longer exists."})

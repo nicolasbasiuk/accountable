@@ -22,7 +22,8 @@ export type ContactDetails = Fields & { deals: LinkedDeal[] }
 
 export const contactsQuery = queryOptions({ queryKey: ['contacts'], queryFn: () => get<Contact[]>('/contacts') })
 
-export const contactQuery = (id: number) => queryOptions({ queryKey: ['contacts', id], queryFn: () => get<ContactDetails>(`/contacts/${id}`) })
+export const contactQuery = (id: number) =>
+  queryOptions({ queryKey: ['contacts', id], queryFn: () => get<ContactDetails>(`/contacts/${id}`) })
 
 /** Adds one, or edits the one with the id. */
 export const useSaveContact = (id?: number) =>

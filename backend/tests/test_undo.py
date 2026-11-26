@@ -11,7 +11,14 @@ def test_undo_puts_everything_back(api, to_stage):
     organization = api.organization()
     contact = api.contact(status="qualified", organization_id=organization)
     below = api.deal("Below", stage="qualified")
-    deal = api.deal("Moved", stage="qualified", probability=33, close_date="2027-02-01", contact_id=contact, organization_id=organization)
+    deal = api.deal(
+        "Moved",
+        stage="qualified",
+        probability=33,
+        close_date="2027-02-01",
+        contact_id=contact,
+        organization_id=organization,
+    )
     above = api.deal("Above", stage="qualified")
     already_there = api.deal("Already there", stage=to_stage)
     before = api.get(f"/deals/{deal}")

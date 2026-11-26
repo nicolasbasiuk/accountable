@@ -38,7 +38,9 @@ function useRefreshError(): Error | null {
   return useSyncExternalStore(
     useCallback((changed) => queries.subscribe(notifyManager.batchCalls(changed)), [queries]),
     () => {
-      const failed = queries.findAll({ type: 'active' }).find(({ state }) => state.data !== undefined && state.error && !isNotFound(state.error))
+      const failed = queries
+        .findAll({ type: 'active' })
+        .find(({ state }) => state.data !== undefined && state.error && !isNotFound(state.error))
       return failed?.state.error ?? null
     },
   )

@@ -14,7 +14,13 @@ type FieldProps = { label: string; error?: string; optional?: boolean; className
 
 export type FieldIds = { id: string; 'aria-invalid': boolean; 'aria-describedby': string | undefined }
 
-export function Field({ label, error, optional, className = '', children }: FieldProps & { children: (ids: FieldIds) => ReactNode }) {
+export function Field({
+  label,
+  error,
+  optional,
+  className = '',
+  children,
+}: FieldProps & { children: (ids: FieldIds) => ReactNode }) {
   const id = useId()
   return (
     <div className={className}>
@@ -37,13 +43,30 @@ function Problem({ id, children }: { id: string; children?: string }) {
   )
 }
 
-export function TextField({ label, error, optional, className, prefix, ...input }: FieldProps & Omit<ComponentProps<'input'>, 'prefix'> & { prefix?: string }) {
+export function TextField({
+  label,
+  error,
+  optional,
+  className,
+  prefix,
+  ...input
+}: FieldProps & Omit<ComponentProps<'input'>, 'prefix'> & { prefix?: string }) {
   return (
     <Field label={label} error={error} optional={optional} className={className}>
       {(ids) => (
         <div className="relative">
-          {prefix && <span className="num pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-muted">{prefix}</span>}
-          <input type="text" autoComplete="off" {...ids} {...input} className={`${CONTROL} h-11 ${prefix ? 'num pl-7' : ''}`} />
+          {prefix && (
+            <span className="num pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-muted">
+              {prefix}
+            </span>
+          )}
+          <input
+            type="text"
+            autoComplete="off"
+            {...ids}
+            {...input}
+            className={`${CONTROL} h-11 ${prefix ? 'num pl-7' : ''}`}
+          />
         </div>
       )}
     </Field>
@@ -51,7 +74,14 @@ export function TextField({ label, error, optional, className, prefix, ...input 
 }
 
 /** A date, or a date and time. */
-export function DateField({ label, error, optional, className, type = 'date', ...input }: FieldProps & ComponentProps<'input'>) {
+export function DateField({
+  label,
+  error,
+  optional,
+  className,
+  type = 'date',
+  ...input
+}: FieldProps & ComponentProps<'input'>) {
   return (
     <Field label={label} error={error} optional={optional} className={className}>
       {(ids) => <input type={type} {...ids} {...input} className={`${CONTROL} num h-11 text-sm`} />}
@@ -70,7 +100,13 @@ export function TextArea({ label, error, optional, className, ...input }: FieldP
 export type Option = { value: string; label: string; show?: ReactNode }
 
 /** One of a few, all in sight. */
-export function ChoiceField({ label, options, error, className, ...input }: FieldProps & ComponentProps<'input'> & { options: Option[] }) {
+export function ChoiceField({
+  label,
+  options,
+  error,
+  className,
+  ...input
+}: FieldProps & ComponentProps<'input'> & { options: Option[] }) {
   return (
     <fieldset className={className}>
       <legend className="mb-1.5 text-sm font-medium">{label}</legend>

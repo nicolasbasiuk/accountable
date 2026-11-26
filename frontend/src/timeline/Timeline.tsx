@@ -24,11 +24,16 @@ export function Timeline({ area, id, on }: { area: Area; id: number; on?: On }) 
   const [open, setOpen] = useState<Open | null>(null)
   const close = () => setOpen(null)
   return (
-    <HeadedPanel heading="Timeline" action={on && <AddButton onClick={() => setOpen({ what: 'log' })}>Log activity</AddButton>}>
+    <HeadedPanel
+      heading="Timeline"
+      action={on && <AddButton onClick={() => setOpen({ what: 'log' })}>Log activity</AddButton>}
+    >
       <Loaded query={query}>
         {(entries) => (
           <>
-            {entries.length === 0 && <p className="mt-2 text-muted">Notes, calls, emails and changes of stage go here.</p>}
+            {entries.length === 0 && (
+              <p className="mt-2 text-muted">Notes, calls, emails and changes of stage go here.</p>
+            )}
             <ul className="mt-3 flex flex-col gap-1">
               {entries.map((entry) => (
                 <Item
@@ -58,7 +63,12 @@ export function Timeline({ area, id, on }: { area: Area; id: number; on?: On }) 
   )
 }
 
-type ItemProps = { entry: Entry; here: boolean; onEdit: (activity: ActivityEntry) => void; onDelete: (activity: ActivityEntry) => void }
+type ItemProps = {
+  entry: Entry
+  here: boolean
+  onEdit: (activity: ActivityEntry) => void
+  onDelete: (activity: ActivityEntry) => void
+}
 
 function Item({ entry, here, onEdit, onDelete }: ItemProps) {
   return (
@@ -69,8 +79,15 @@ function Item({ entry, here, onEdit, onDelete }: ItemProps) {
           <EntryText entry={entry} />
         </p>
         <p className="text-sm text-muted">
-          {entryName(entry)}, <time dateTime={entry.at} className="num text-xs">{dateTime(entry.at)}</time>
-          {!here && <span className="block"><EntryRecordLink record={entry.record} /></span>}
+          {entryName(entry)},{' '}
+          <time dateTime={entry.at} className="num text-xs">
+            {dateTime(entry.at)}
+          </time>
+          {!here && (
+            <span className="block">
+              <EntryRecordLink record={entry.record} />
+            </span>
+          )}
         </p>
         {entry.kind === 'activity' && entry.follow_up_on && <FollowUp activity={entry} day={entry.follow_up_on} />}
       </div>
@@ -108,10 +125,17 @@ function FollowUp({ activity, day }: { activity: ActivityEntry; day: string }) {
         className="check"
       />
       <span className={`text-sm ${done ? 'text-muted line-through' : ''}`}>
-        Follow up on <time dateTime={day} className="num text-xs">{date(day)}</time>
+        Follow up on{' '}
+        <time dateTime={day} className="num text-xs">
+          {date(day)}
+        </time>
       </span>
       {done && <span className="text-sm font-medium">Done</span>}
-      {overdue > 0 && <span className="tag">Overdue <Count amount={overdue} word="day" /></span>}
+      {overdue > 0 && (
+        <span className="tag">
+          Overdue <Count amount={overdue} word="day" />
+        </span>
+      )}
     </label>
   )
 }

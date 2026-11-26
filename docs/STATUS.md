@@ -9,6 +9,9 @@ You need Node.js 24 or later and uv. The commands are the same on Mac, Linux and
 | `npm run dev` | Starts Accountable, installing what's missing first. Open `http://localhost:5173`. Ctrl+C stops it |
 | `npm run seed` | Saves a copy of the data, asks, then resets it to the sample data. `npm run seed -- --yes` doesn't ask |
 | `npm test` | The type check and every test, in about four minutes. Needs Google Chrome. Uses a database and ports of its own, so Accountable can be running |
+| `npm run check` | Prettier, ESLint, ruff, tsc and gitleaks, then `npm test`. Needs gitleaks: `brew install gitleaks` on a Mac, `winget install -e --id Gitleaks.Gitleaks` on Windows |
+| `npm run check:quick` | `npm run check` without the end-to-end tests, in about ten seconds |
+| `npm run format` | Fixes the formatting that `npm run check` checks |
 
 The data is in `data/accountable.db`, and the copies are in `data/backups/`. Git ignores both. `npm test` needs the computer to stay awake: a test fails if it sleeps halfway.
 
@@ -21,6 +24,8 @@ The data is in `data/accountable.db`, and the copies are in `data/backups/`. Git
 - Test, first part: `npm test` is in `AGENTS.md`. A stray `it.only` in a frontend test now fails it, as `test.only` already did in an end-to-end test.
 - Test, second part: the dashboard and pipeline were compared with mockup D using Playwright, and what differed was fixed: the two month charts, the section icons, the digits in late and overdue tags, and small sizes and gaps.
 - Harness, the repo as memory: the MVP's `intent.md` and `plan.md` are in `docs/changes/mvp/`. `docs/spec.md` now describes the whole product, with the problem from the intent and what the review fixes added (G4, G6, G7, G8, P8, API). `AGENTS.md` reads it first, and `docs/REVIEW.md` flags code it doesn't describe.
+- Harness, coding standards: `docs/STANDARDS.md`, pointed to from `AGENTS.md` and checked by `docs/REVIEW.md`.
+- Harness, the checks: `npm run check`, `npm run check:quick` and `npm run format`, in `AGENTS.md`. What they found is fixed, with no rule weakened. typescript-eslint needs TypeScript 6's API, which TypeScript 7 doesn't have, so `overrides` in `package.json` gives it TypeScript 6. tsc is still TypeScript 7.
 
 ## Review findings
 
@@ -54,6 +59,7 @@ The second. 10 to 13 are fixed, each with a test that failed before its fix. 14 
 ## What's been checked
 
 - `npm test`: 427 backend tests, 192 frontend tests and 122 end-to-end tests in Chrome.
+- `npm run check` passes. `npm run check:quick` leaves out the end-to-end tests, and with a badly formatted, unused variable it named Prettier and ESLint and exited with 1. gitleaks allows a token in `.env` and finds the same token anywhere else, including a `.env` in a subfolder.
 - `npm test` fails when it should: with a failing test in each suite and a type error in each type check, it named all five and exited with 1.
 - The dashboard and pipeline, given mockup D's data, beside mockup D at 1280, 1440 and 1920 wide: the same page heights, and under 0.2% of pixels differ. Those are the revenue line's curve, the small icons in Recent activity, and text edges. Since then, overdue follow-ups also show their date, which mockup D doesn't, so that panel is taller.
 - A fresh copy of the project: first start, then a start and a first page load with the network blocked.

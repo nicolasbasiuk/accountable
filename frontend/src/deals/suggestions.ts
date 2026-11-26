@@ -30,7 +30,11 @@ export function forStage(config: Config, stage: Stage, closeDate: string, dateBe
 }
 
 /** The contact's organization, if none was chosen yet. */
-export function organizationFor(contactId: number | null, contacts: Contact[], organizationId: number | null): number | null {
+export function organizationFor(
+  contactId: number | null,
+  contacts: Contact[],
+  organizationId: number | null,
+): number | null {
   return organizationId ?? contacts.find(({ id }) => id === contactId)?.organization?.id ?? null
 }
 

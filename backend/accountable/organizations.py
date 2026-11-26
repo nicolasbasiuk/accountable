@@ -1,6 +1,7 @@
 """Organizations (O1 to O3)."""
 
-from sqlalchemy import Connection, Row, delete as delete_from, func, insert, select, update
+from sqlalchemy import Connection, Row, func, insert, select, update
+from sqlalchemy import delete as delete_from
 
 from accountable import clock, db, stages
 from accountable.errors import NotFound
@@ -39,17 +40,22 @@ def get(organization_id: int) -> dict:
     with db.read() as connection:
         organization = _row(connection, organization_id)
         people = connection.execute(
-            select(contacts).where(contacts.c.organization_id == organization_id).order_by(func.lower(contacts.c.name), contacts.c.id)
+            select(contacts)
+            .where(contacts.c.organization_id == organization_id)
+            .order_by(func.lower(contacts.c.name), contacts.c.id)
         ).all()
         its_deals = connection.execute(
-            select(deals).where(deals.c.organization_id == organization_id).order_by(deals.c.close_date.desc(), deals.c.id.desc())
+            select(deals)
+            .where(deals.c.organization_id == organization_id)
+            .order_by(deals.c.close_date.desc(), deals.c.id.desc())
         ).all()
     return {
         **organization._asdict(),
         "open_value": sum(deal.value for deal in its_deals if deal.stage in stages.OPEN),
         "value_won": sum(deal.value for deal in its_deals if deal.stage == "won"),
         "contacts": [
-            {"id": person.id, "name": person.name, "job_title": person.job_title, "status": person.status} for person in people
+            {"id": person.id, "name": person.name, "job_title": person.job_title, "status": person.status}
+            for person in people
         ],
         "deals": [
             {

@@ -1,6 +1,14 @@
 import type { ReactNode } from 'react'
 
-export function Panel({ className = '', label, children }: { className?: string; label?: string; children: ReactNode }) {
+export function Panel({
+  className = '',
+  label,
+  children,
+}: {
+  className?: string
+  label?: string
+  children: ReactNode
+}) {
   return (
     <section aria-label={label} className={`rounded-panel bg-white ${className}`}>
       {children}
@@ -8,12 +16,21 @@ export function Panel({ className = '', label, children }: { className?: string;
   )
 }
 
-type PageProps = { title: string; heading?: ReactNode; under?: ReactNode; action?: ReactNode; fill?: boolean; children: ReactNode }
+type PageProps = {
+  title: string
+  heading?: ReactNode
+  under?: ReactNode
+  action?: ReactNode
+  fill?: boolean
+  children: ReactNode
+}
 
 /** A heading, one main action, the content. With "fill", the content has the height of the window. */
 export function Page({ title, heading, under, action, fill = false, children }: PageProps) {
   return (
-    <main className={`px-5 pt-6.5 pl-2 min-[1401px]:pr-8 min-[1401px]:pl-4.5 ${fill ? 'flex h-screen flex-col pb-5' : 'max-w-[1640px] pb-12'}`}>
+    <main
+      className={`px-5 pt-6.5 pl-2 min-[1401px]:pr-8 min-[1401px]:pl-4.5 ${fill ? 'flex h-screen flex-col pb-5' : 'max-w-[1640px] pb-12'}`}
+    >
       <title>{title === 'Dashboard' ? 'Accountable' : `${title} - Accountable`}</title>
       <header className="mb-4.5 flex min-h-11 items-start justify-between gap-6">
         <div className="min-w-0">
@@ -73,5 +90,7 @@ export function Rows({ children }: { children: ReactNode }) {
 }
 
 export function Row({ children }: { children: ReactNode }) {
-  return <li className="flex items-center justify-between gap-4 border-t border-hair py-2.5 first:border-0">{children}</li>
+  return (
+    <li className="flex items-center justify-between gap-4 border-t border-hair py-2.5 first:border-0">{children}</li>
+  )
 }

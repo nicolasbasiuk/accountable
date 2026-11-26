@@ -34,7 +34,11 @@ def for_organization(organization_id: int) -> list[dict]:
         its_deals = select(deals.c.id).where(deals.c.organization_id == organization_id)
         return _entries(
             connection,
-            or_(activities.c.contact_id.in_(people), activities.c.deal_contact_id.in_(people), activities.c.deal_id.in_(its_deals)),
+            or_(
+                activities.c.contact_id.in_(people),
+                activities.c.deal_contact_id.in_(people),
+                activities.c.deal_id.in_(its_deals),
+            ),
             or_(stage_changes.c.contact_id.in_(people), stage_changes.c.deal_id.in_(its_deals)),
         )
 
@@ -81,11 +85,19 @@ def _must_exist(connection: Connection, table, record_id: int) -> None:
         raise NotFound
 
 
-def _entries(connection: Connection, which_activities: ColumnElement, which_changes: ColumnElement, amount: int | None = None) -> list[dict]:
+def _entries(
+    connection: Connection, which_activities: ColumnElement, which_changes: ColumnElement, amount: int | None = None
+) -> list[dict]:
     """Newest first, then highest id (A8)."""
-    activity_rows = connection.execute(_activities(which_activities).order_by(activities.c.happened_at.desc(), activities.c.id.desc()).limit(amount))
-    change_rows = connection.execute(_changes(which_changes).order_by(stage_changes.c.changed_at.desc(), stage_changes.c.id.desc()).limit(amount))
-    entries = [_activity_entry(row) for row in activity_rows.mappings()] + [_change_entry(row) for row in change_rows.mappings()]
+    activity_rows = connection.execute(
+        _activities(which_activities).order_by(activities.c.happened_at.desc(), activities.c.id.desc()).limit(amount)
+    )
+    change_rows = connection.execute(
+        _changes(which_changes).order_by(stage_changes.c.changed_at.desc(), stage_changes.c.id.desc()).limit(amount)
+    )
+    entries = [_activity_entry(row) for row in activity_rows.mappings()] + [
+        _change_entry(row) for row in change_rows.mappings()
+    ]
     entries.sort(key=lambda entry: (entry["at"], entry["id"], entry["kind"]), reverse=True)
     return entries[:amount]
 

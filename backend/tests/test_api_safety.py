@@ -10,7 +10,9 @@ def test_this_computers_names(api, host):
     assert api.client.get("/api/health", headers={"host": host}).status_code == 200
 
 
-@pytest.mark.parametrize("host", ["evil.example", "localhost.evil.example", "192.168.1.10", "evil.example:8000", "0.0.0.0"])
+@pytest.mark.parametrize(
+    "host", ["evil.example", "localhost.evil.example", "192.168.1.10", "evil.example:8000", "0.0.0.0"]
+)
 def test_another_host_name_is_refused(api, host):
     answer = api.client.get("/api/deals", headers={"host": host})
     assert answer.status_code == 400
@@ -18,7 +20,9 @@ def test_another_host_name_is_refused(api, host):
 
 @pytest.mark.parametrize("method", ["GET", "POST", "PATCH", "DELETE"])
 def test_another_site_gets_no_permission(api, method):
-    asked = api.client.options("/api/deals", headers={"origin": "https://evil.example", "access-control-request-method": method})
+    asked = api.client.options(
+        "/api/deals", headers={"origin": "https://evil.example", "access-control-request-method": method}
+    )
     assert asked.status_code >= 400
     answer = api.client.get("/api/deals", headers={"origin": "https://evil.example"})
     for response in (asked, answer):

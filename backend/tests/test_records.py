@@ -4,7 +4,6 @@ from datetime import datetime
 import pytest
 from conftest import TODAY
 
-
 # Add, read, edit and delete (O1, C1, D1)
 
 
@@ -22,7 +21,13 @@ def test_an_organization(api):
 
 def test_a_contact(api):
     organization = api.organization()
-    values = {"name": "Priya Nair", "email": "priya@uplandwater.example", "phone": "(303) 555-0101", "job_title": "IT Manager", "status": "qualified"}
+    values = {
+        "name": "Priya Nair",
+        "email": "priya@uplandwater.example",
+        "phone": "(303) 555-0101",
+        "job_title": "IT Manager",
+        "status": "qualified",
+    }
     record_id = api.post("/contacts", {**values, "organization_id": organization}, 201)["id"]
     saved = api.get(f"/contacts/{record_id}")
     assert values.items() <= saved.items()
@@ -47,7 +52,13 @@ def test_a_contact_is_a_lead_unless_changed(api):
 
 def test_a_deal(api):
     organization, contact = api.organization(), api.contact()
-    values = {"name": "Cloud migration", "stage": "proposal", "value": 82_000, "probability": 45, "close_date": "2027-01-14"}
+    values = {
+        "name": "Cloud migration",
+        "stage": "proposal",
+        "value": 82_000,
+        "probability": 45,
+        "close_date": "2027-01-14",
+    }
     record_id = api.post("/deals", {**values, "organization_id": organization, "contact_id": contact}, 201)["id"]
     saved = api.get(f"/deals/{record_id}")
     assert values.items() <= saved.items()
@@ -83,60 +94,94 @@ def test_text_is_trimmed_and_blanks_are_empty(api):
 # Problems beside their field (G6)
 
 
-@pytest.mark.parametrize("path, body, fields", [
-    ("/organizations", {}, {"name": "Enter a name."}),
-    ("/organizations", {"name": "   "}, {"name": "Enter a name."}),
-    ("/contacts", {}, {"name": "Enter a name."}),
-    ("/deals", {}, {"name": "Enter a name.", "value": "Enter a value.", "close_date": "Enter a close date."}),
-    ("/deals", {"name": "A", "value": None, "close_date": None}, {"value": "Enter a value.", "close_date": "Enter a close date."}),
-])
+@pytest.mark.parametrize(
+    "path, body, fields",
+    [
+        ("/organizations", {}, {"name": "Enter a name."}),
+        ("/organizations", {"name": "   "}, {"name": "Enter a name."}),
+        ("/contacts", {}, {"name": "Enter a name."}),
+        ("/deals", {}, {"name": "Enter a name.", "value": "Enter a value.", "close_date": "Enter a close date."}),
+        (
+            "/deals",
+            {"name": "A", "value": None, "close_date": None},
+            {"value": "Enter a value.", "close_date": "Enter a close date."},
+        ),
+    ],
+)
 def test_required_fields(api, path, body, fields):
     assert api.post(path, body, 422)["fields"] == fields
 
 
-@pytest.mark.parametrize("path, record", [("organizations", "organization"), ("contacts", "contact"), ("deals", "deal")])
+@pytest.mark.parametrize(
+    "path, record", [("organizations", "organization"), ("contacts", "contact"), ("deals", "deal")]
+)
 def test_a_required_field_cannot_be_emptied(api, path, record):
     record_id = getattr(api, record)()
     assert api.patch(f"/{path}/{record_id}", {"name": ""}, 422)["fields"] == {"name": "Enter a name."}
     assert api.patch(f"/{path}/{record_id}", {"name": None}, 422)["fields"] == {"name": "Enter a name."}
 
 
-@pytest.mark.parametrize("email", ["priya", "priya@", "@example.com", "priya@example", "pri ya@example.com", "a@b@example.com", "a@example..com"])
+@pytest.mark.parametrize(
+    "email",
+    ["priya", "priya@", "@example.com", "priya@example", "pri ya@example.com", "a@b@example.com", "a@example..com"],
+)
 def test_an_email_must_look_like_one(api, email):
     answer = api.post("/contacts", {"name": "Priya Nair", "email": email}, 422)
     assert answer["fields"] == {"email": "Enter an email address, such as name@example.com."}
 
 
-@pytest.mark.parametrize("website", [
-    "uplandwater.example", "www.uplandwater.example/about?x=1#top", "https://uplandwater.example", "http://uplandwater.example:8080/a", "HTTPS://Uplandwater.example",
-])
+@pytest.mark.parametrize(
+    "website",
+    [
+        "uplandwater.example",
+        "www.uplandwater.example/about?x=1#top",
+        "https://uplandwater.example",
+        "http://uplandwater.example:8080/a",
+        "HTTPS://Uplandwater.example",
+    ],
+)
 def test_good_websites(api, website):
     record_id = api.organization(website=website)
     assert api.get(f"/organizations/{record_id}")["website"] == website
 
 
-@pytest.mark.parametrize("website", [
-    "javascript:alert(1)", "javascript://uplandwater.example/%0aalert(1)", "ftp://uplandwater.example", "data:text/html,hello", "file:///etc/hosts",
-    "mailto:priya@uplandwater.example", "https://", "upland water.example", "uplandwater", "https://user@uplandwater.example", "http://[",
-])
+@pytest.mark.parametrize(
+    "website",
+    [
+        "javascript:alert(1)",
+        "javascript://uplandwater.example/%0aalert(1)",
+        "ftp://uplandwater.example",
+        "data:text/html,hello",
+        "file:///etc/hosts",
+        "mailto:priya@uplandwater.example",
+        "https://",
+        "upland water.example",
+        "uplandwater",
+        "https://user@uplandwater.example",
+        "http://[",
+    ],
+)
 def test_only_http_and_https_websites(api, website):
     answer = api.post("/organizations", {"name": "Upland Water", "website": website}, 422)
     assert answer["fields"] == {"website": "Enter a website address, such as example.com."}
 
 
-@pytest.mark.parametrize("field, value, message", [
-    ("value", -1, "Enter a value of $0 or more."),
-    ("value", 10.5, "Enter a whole number."),
-    ("value", 10**15, "Enter a value of $999,999,999,999 or less."),
-    ("value", 10**30, "Enter a value of $999,999,999,999 or less."),
-    ("probability", -1, "Enter a probability from 0 to 100."),
-    ("probability", 101, "Enter a probability from 0 to 100."),
-    ("close_date", "soon", "Enter a date."),
-    ("close_date", "0026-11-11", "Enter the year with four digits, such as 2026."),
-    ("stage", "waiting", "Choose one of the options."),
-    ("organization_id", 99, "This organization no longer exists."),
-    ("contact_id", 99, "This contact no longer exists."),
-])
+@pytest.mark.parametrize(
+    "field, value, message",
+    [
+        ("value", -1, "Enter a value of $0 or more."),
+        ("value", 10.5, "Enter a whole number."),
+        ("value", 10**15, "Enter a value of $999,999,999,999 or less."),
+        ("value", 10**30, "Enter a value of $999,999,999,999 or less."),
+        ("probability", -1, "Enter a probability from 0 to 100."),
+        ("probability", 101, "Enter a probability from 0 to 100."),
+        ("close_date", "soon", "Enter a date."),
+        ("close_date", "0026-11-11", "Enter the year with four digits, such as 2026."),
+        ("stage", "waiting", "Choose one of the options."),
+        ("organization_id", 99, "This organization no longer exists."),
+        ("contact_id", 99, "This contact no longer exists."),
+    ],
+)
 def test_deal_limits(api, field, value, message):
     body = {"name": "Cloud migration", "value": 10_000, "close_date": "2027-01-14", field: value}
     assert api.post("/deals", body, 422)["fields"] == {field: message}
@@ -154,10 +199,18 @@ def test_a_contact_at_an_organization_that_has_gone(api):
     assert answer["fields"] == {"organization_id": "This organization no longer exists."}
 
 
-@pytest.mark.parametrize("path, field", [
-    ("/organizations", "name"), ("/organizations", "website"), ("/organizations", "notes"),
-    ("/contacts", "name"), ("/contacts", "email"), ("/deals", "name"), ("/activities", "description"),
-])
+@pytest.mark.parametrize(
+    "path, field",
+    [
+        ("/organizations", "name"),
+        ("/organizations", "website"),
+        ("/organizations", "notes"),
+        ("/contacts", "name"),
+        ("/contacts", "email"),
+        ("/deals", "name"),
+        ("/activities", "description"),
+    ],
+)
 def test_text_that_cannot_be_saved(api, path, field):
     """Half of a character, which JSON can hold but a database can't."""
     whole = {
@@ -236,7 +289,11 @@ def test_organization_columns(api):
     api.deal(organization_id=organization, value=99_000, stage="won")
     api.deal(organization_id=organization, value=99_000, stage="lost")
     rows = {row["id"]: row for row in api.get("/organizations")}
-    assert (rows[organization]["contacts"], rows[organization]["open_deals"], rows[organization]["open_value"]) == (2, 2, 15_000)
+    assert (rows[organization]["contacts"], rows[organization]["open_deals"], rows[organization]["open_value"]) == (
+        2,
+        2,
+        15_000,
+    )
     assert (rows[other]["contacts"], rows[other]["open_deals"], rows[other]["open_value"]) == (0, 0, 0)
 
 

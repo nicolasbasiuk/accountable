@@ -55,7 +55,12 @@ function atStage(card: Card, stage: Stage, config: Config): Card {
 }
 
 /** The move that drops a card at a place, or undefined if it's where it was. */
-export function dropAt(board: Board, id: number, from: { stage: Stage; place: number }, to: { stage: Stage; place: number }): Move | undefined {
+export function dropAt(
+  board: Board,
+  id: number,
+  from: { stage: Stage; place: number },
+  to: { stage: Stage; place: number },
+): Move | undefined {
   if (from.stage === to.stage && from.place === to.place) return undefined
   const others = board.columns.find(({ stage }) => stage === to.stage)!.cards.filter((card) => card.id !== id)
   return { id, stage: to.stage, before_id: others[to.place]?.id ?? null }

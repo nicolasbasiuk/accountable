@@ -1,6 +1,7 @@
 """Activities (A1 to A3)."""
 
-from sqlalchemy import Connection, Row, delete as delete_from, insert, select, update
+from sqlalchemy import Connection, Row, insert, select, update
+from sqlalchemy import delete as delete_from
 
 from accountable import clock, db
 from accountable.errors import Invalid, NotFound

@@ -17,7 +17,10 @@ export function RecentActivity({ entries, today }: { entries: Entry[]; today: st
             {entries
               .filter(({ at }) => dayOf(at) === day)
               .map((entry) => (
-                <li key={`${entry.kind} ${entry.id}`} className="flex items-center gap-3 py-1.5 text-[14.5px] leading-[1.4]">
+                <li
+                  key={`${entry.kind} ${entry.id}`}
+                  className="flex items-center gap-3 py-1.5 text-[14.5px] leading-[1.4]"
+                >
                   <EntryIcon entry={entry} />
                   <div className="min-w-0 flex-1">
                     <span className="sr-only">{entryName(entry)}: </span>
