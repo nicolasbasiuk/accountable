@@ -19,3 +19,5 @@ Update `docs/STATUS.md` when you finish a piece of work
 `npm run check` runs Prettier and ESLint on the frontend, ruff format and ruff check on the backend, tsc, gitleaks across the repo, then `npm test`, and fails if any fail. It takes about four minutes. `npm test` runs the type check and all the unit and end-to-end tests. `npm run check:quick` is `npm run check` without the end-to-end tests. `npm run format` fixes the formatting.
 
 Run `npm run check` before you finish a piece of work. If it fails, find the root cause and fix it until it passes. Never skip, delete or weaken a test or a rule to make it pass.
+
+A pre-commit hook in `lefthook.yml` formats the staged files, then runs lint, types and gitleaks. If it fails, fix the cause. Never commit with `--no-verify`.

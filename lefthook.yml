@@ -1,0 +1,33 @@
+# Before each commit: format the staged files, then lint them, check the types and look for secrets.
+# The tests are left to npm run check, so that committing stays quick.
+glob_matcher: doublestar
+
+pre-commit:
+  piped: true # The checks see the formatted files.
+  jobs:
+    - name: format
+      group:
+        jobs:
+          - name: prettier
+            glob: 'frontend/**'
+            run: npx prettier --write --ignore-unknown {staged_files}
+            stage_fixed: true
+          - name: ruff format
+            glob: 'backend/**/*.py'
+            run: uv run --no-sync ruff format {staged_files}
+            stage_fixed: true
+
+    - name: checks
+      group:
+        parallel: true
+        jobs:
+          - name: eslint
+            glob: 'frontend/**/*.{js,ts,tsx}'
+            run: npx eslint {staged_files}
+          - name: ruff check
+            glob: 'backend/**/*.py'
+            run: uv run --no-sync ruff check {staged_files}
+          - name: types # The whole project, as a change to one file can break another.
+            run: npx tsc --noEmit -p frontend && npx tsc --noEmit -p e2e
+          - name: gitleaks
+            run: gitleaks git --pre-commit --staged --no-banner --redact

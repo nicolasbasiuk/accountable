@@ -12,6 +12,7 @@ You need Node.js 24 or later and uv. The commands are the same on Mac, Linux and
 | `npm run check` | Prettier, ESLint, ruff, tsc and gitleaks, then `npm test`. Needs gitleaks: `brew install gitleaks` on a Mac, `winget install -e --id Gitleaks.Gitleaks` on Windows |
 | `npm run check:quick` | `npm run check` without the end-to-end tests, in about ten seconds |
 | `npm run format` | Fixes the formatting that `npm run check` checks |
+| `git commit` | Runs the pre-commit hook first, in a second or two: it formats the staged files, then runs lint, types and gitleaks, and stops the commit if any fail |
 
 The data is in `data/accountable.db`, and the copies are in `data/backups/`. Git ignores both. `npm test` needs the computer to stay awake: a test fails if it sleeps halfway.
 
@@ -26,6 +27,8 @@ The data is in `data/accountable.db`, and the copies are in `data/backups/`. Git
 - Harness, the repo as memory: the MVP's `intent.md` and `plan.md` are in `docs/changes/mvp/`. `docs/spec.md` now describes the whole product, with the problem from the intent and what the review fixes added (G4, G6, G7, G8, P8, API). `AGENTS.md` reads it first, and `docs/REVIEW.md` flags code it doesn't describe.
 - Harness, coding standards: `docs/STANDARDS.md`, pointed to from `AGENTS.md` and checked by `docs/REVIEW.md`.
 - Harness, the checks: `npm run check`, `npm run check:quick` and `npm run format`, in `AGENTS.md`. What they found is fixed, with no rule weakened. typescript-eslint needs TypeScript 6's API, which TypeScript 7 doesn't have, so `overrides` in `package.json` gives it TypeScript 6. tsc is still TypeScript 7.
+- Harness, the pre-commit hook: `lefthook.yml` formats the staged files, then runs ESLint, ruff check, tsc and gitleaks. `npm run dev`, `npm test` and `npm run check` set it up when they install the packages.
+- Harness, the `.env` guard: a Claude Code `PreToolUse` hook in `.claude/settings.json` runs `.claude/hooks/protect-env.mjs`, which stops Edit, Write, MultiEdit and NotebookEdit on any file named `.env`, or linked to one, and any Bash or PowerShell command that names a `.env` file. `.env.example` stays free. A command that only mentions `.env`, such as a commit message about it, is stopped too.
 
 ## Review findings
 
@@ -60,6 +63,8 @@ The second. 10 to 13 are fixed, each with a test that failed before its fix. 14 
 
 - `npm test`: 427 backend tests, 192 frontend tests and 122 end-to-end tests in Chrome.
 - `npm run check` passes. `npm run check:quick` leaves out the end-to-end tests, and with a badly formatted, unused variable it named Prettier and ESLint and exited with 1. gitleaks allows a token in `.env` and finds the same token anywhere else, including a `.env` in a subfolder.
+- The pre-commit hook, with real commits in a copy of the repo: unformatted frontend and backend code was committed formatted; an ESLint error, a ruff error, a type error, a deleted file still imported and a token in a doc each stopped the commit; a partly staged file kept its unstaged part; a doc-only commit skipped the formatters and linters. Each commit took 0.5 to 1.6 seconds.
+- The `.env` guard: 21 tool calls piped into it, 15 stopped and 6 let through as expected, including a link to a `.env` and input it can't read, which it stops. Live in Claude Code, it stopped a Bash command and a Write naming `.env`, and let a Write to `.env.example` through.
 - `npm test` fails when it should: with a failing test in each suite and a type error in each type check, it named all five and exited with 1.
 - The dashboard and pipeline, given mockup D's data, beside mockup D at 1280, 1440 and 1920 wide: the same page heights, and under 0.2% of pixels differ. Those are the revenue line's curve, the small icons in Recent activity, and text edges. Since then, overdue follow-ups also show their date, which mockup D doesn't, so that panel is taller.
 - A fresh copy of the project: first start, then a start and a first page load with the network blocked.

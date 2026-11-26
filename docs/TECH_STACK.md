@@ -24,6 +24,8 @@ The checks:
 3. tsc for the frontend
 4. gitleaks across the repo, allowing only the git-ignored `.env`
 
+A lefthook pre-commit hook, in `lefthook.yml`, formats the staged files, then runs ESLint and ruff check on them, tsc on the whole frontend and end-to-end tests, and gitleaks on what is staged. It leaves out the tests, so it stays quick.
+
 `docs/STATUS.md` says how to run the app. `README.md` is the course's own guide, so leave it as it is.
 
 Testing will cover:

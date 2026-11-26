@@ -70,6 +70,14 @@ function installWith(command, args, what) {
   if (status !== 0) throw new Problem(`The ${what} packages couldn't be installed. The reason is above.`)
 }
 
+/** Sets up the Git hooks in lefthook.yml. lefthook would do it itself, but --ignore-scripts stops it. */
+function installHooks() {
+  if (!existsSync(path.join(ROOT, '.git'))) return // A copy without Git has no hooks.
+  const lefthook = path.join(ROOT, 'node_modules', 'lefthook', 'bin', 'index.js')
+  const { status } = spawnSync(process.execPath, [lefthook, 'install'], { cwd: ROOT, stdio: 'inherit' })
+  if (status !== 0) throw new Problem("The Git hooks couldn't be set up. The reason is above.")
+}
+
 /** Installs whatever is missing or out of date. */
 export async function install() {
   const npm = !npmIsCurrent()
@@ -79,6 +87,7 @@ export async function install() {
   }
   if (npm) {
     installWith('npm', ['ci', '--ignore-scripts', '--no-fund', '--no-audit'], 'JavaScript')
+    installHooks()
     writeFileSync(INSTALLED, lockHash())
   }
   if (python) installWith('uv', ['sync', '--frozen'], 'Python')

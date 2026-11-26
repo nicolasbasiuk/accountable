@@ -248,6 +248,7 @@ There's no sign-in, so the server listens on `127.0.0.1` only, refuses any host 
 - The scripts are Node and Python only, with no shell commands, so they're the same on Windows. The one behind `npm run dev` uses nothing that has to be installed first.
 - The backup in R5 uses SQLite's own backup, and the reset is one transaction, so both are safe while the app runs.
 - `npm run check` runs Prettier and ESLint on the frontend, ruff format and ruff check on the backend, tsc, gitleaks, then `npm test`. All of them run, even if one fails, and it says which failed. `npm run check:quick` leaves out the end-to-end tests, and `npm run format` fixes the formatting.
+- Each commit runs the pre-commit hook in `lefthook.yml`: Prettier and ruff format on the staged files, which stay staged, then ESLint, ruff check, tsc and gitleaks. Any failure stops the commit. It leaves out the tests. The first install sets the hook up, because `--ignore-scripts` stops lefthook doing it itself.
 - `ACCOUNTABLE_DB` sets the database file, `ACCOUNTABLE_TODAY` fixes today's date, and the ports can be set too. Tests use these; nobody else needs them.
 
 ### Screens
