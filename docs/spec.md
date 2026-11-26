@@ -1,10 +1,32 @@
-# Spec: the Accountable MVP
+# Spec: Accountable
 
-The requirements and design for what `docs/intent.md` describes. `docs/intent.md` says why and what; this says exactly how it behaves. The technology follows `docs/TECH_STACK.md`, and the look follows the brand skill.
+What Accountable is and exactly how it behaves today, as a whole. The technology follows `docs/TECH_STACK.md`, and the look follows the brand skill, which takes priority over any general design guidance.
 
-## Concerns
+## Product
 
-None are open. The answers:
+### Problem
+
+A small business keeps track of its customers and sales in spreadsheets, inboxes and people's heads. Nobody can see at a glance which companies we deal with, who our contacts are, what's in the sales pipeline, what happened last with a customer or what needs doing next.
+
+### What it is
+
+Accountable is a business management system: a sales CRM that will grow into a full Business OS, including ERP. Today it's a complete sales CRM for one person, running on their own computer: a private Salesforce that does the everyday CRM essentials really well. It feels sharp, modern and professional, is a pleasure to use, and its dashboard is visually stunning.
+
+### Users
+
+- One salesperson at a small IT or software services firm that sells to other businesses, using Accountable on their own computer every day.
+- No other systems are involved.
+
+### Limits
+
+- It runs locally with one command on Mac, Linux and Windows (R1). The first start installs what's missing and needs an internet connection; after that, none is needed (R2).
+- It's sized for the sample data and light use: a few hundred of each kind of record, with no speed target.
+- Every change is kept: it's still there after a refresh and after a restart.
+- Light mode only, for a laptop or desktop screen (Q1).
+
+## Decisions
+
+Questions settled in the design, and the answers:
 
 | Concern | Answer |
 |---|---|
@@ -24,11 +46,11 @@ None are open. The answers:
 - **G1** Five sections in a sidebar: Dashboard, Organizations, Contacts, Deals, Pipeline. Dashboard opens first.
 - **G2** Every section, and every record's page, has its own address. Refreshing, going back and opening a link in a new tab all work. A table's search, sort and filter are still there after opening a record and going back.
 - **G3** A change is saved on the server before the app says so. If saving fails, the screen goes back to what it was and a message says what went wrong.
-- **G4** If the server can't be reached, the screen says so and offers Try again. A record that no longer exists gets a page saying so, with a link to its list.
+- **G4** If the server can't be reached, the screen says so and offers Try again. A page that's already open says so too when anything on it couldn't be loaded again. A record that no longer exists gets a page saying so, with a link to its list.
 - **G5** Every list has an empty state that says what goes there and offers the action to add it, if there is one.
-- **G6** Forms show a problem beside the field it's about. Closing a form with unsaved changes asks first.
-- **G7** Money is whole US dollars with the currency, such as $125,000. Dates read Nov 24, 2026. Open value is the total value of the open deals. Expected revenue is value times probability, and is rounded only when shown.
-- **G8** "Today" is the server's local date, everywhere. Times are shown in local time.
+- **G6** Forms show a problem beside the field it's about. Closing a form with unsaved changes asks first, and so do the browser's Back, refreshing and leaving the page.
+- **G7** Money is whole US dollars with the currency, such as $125,000. Dates read Nov 24, 2026, and need a year of four digits, in the forms and the API. Open value is the total value of the open deals. Expected revenue is value times probability, and is rounded only when shown.
+- **G8** "Today" is the server's local date, everywhere. The app asks for it every minute, and loads everything again on a new day, so a screen left open past midnight follows it. Times are shown in local time.
 - **G9** Another tab's changes appear when this one gets the focus. If two tabs edit the same record, the last save wins.
 
 ### Tables
@@ -83,7 +105,7 @@ None are open. The answers:
 - **P5** The top of the board shows the number, total value and expected revenue of the open deals. Each column shows the same three for its own cards.
 - **P6** The figures, the card's probability and its Late mark change the moment it's dropped, before the server answers. If saving fails, the card goes back (G3).
 - **P7** Each column has an Add button that opens the deal form at that stage. The new card appears at the top of the column.
-- **P8** After a card moves to another column, a message says where it went and offers Undo. Undo puts back the deal's stage, place, probability and close date, and its main contact's status if the move changed it, and removes the "Moved" entry from every timeline, as if the move hadn't happened. The message stays for 10 seconds, longer while it's pointed at or focused, and goes when anything else is changed. Only a deal's latest change of stage can be undone.
+- **P8** After a card moves to another column, a message says where it went and offers Undo. Undo puts back the deal's stage, place, probability and close date, and its main contact's status if the move changed it, unless the status was changed by hand since or another of their deals was won since. It removes the "Moved" entry from every timeline, as if the move hadn't happened. The message stays for 10 seconds, longer while it's pointed at or focused, and goes when anything else is changed. Only a deal's latest change of stage can be undone.
 
 ### Activities and timelines
 
@@ -179,7 +201,7 @@ The backend owns every rule: stage changes, lateness, timelines, the funnel and 
 | Forms | React Hook Form | |
 | Styling, icons, fonts | Tailwind CSS, Lucide, Fontsource | Fonts are packages, so they work offline |
 
-Checked while writing this:
+Checked when they were chosen:
 
 - **Drag and drop:** `@hello-pangea/dnd` 18 has had no release since February 2025. With React 19.3 in Chrome, dragging across columns that scroll on their own, dragging within one and moving by keyboard all worked. The test had no sidebar; beside a 208-pixel one at 1280 pixels, each column is about 160 wide. `@dnd-kit/core` is more popular, but its last release is older and it leaves more to write by hand.
 - **Links between records:** Python 3.12 can turn on SQLite's foreign keys with `setconfig`, so keeping, unlinking and deleting (X1) happen in the database with no raw SQL.
@@ -219,7 +241,7 @@ JSON under `/api`. An edit sends only the fields that changed. Invalid fields re
 | `GET /config` | Today, the stages and their usual probabilities |
 | `GET /health` | Whether the server is ready |
 
-There's no sign-in, so the server listens on `127.0.0.1` only, refuses any host name other than `localhost` and `127.0.0.1`, allows no other site to call it, and takes changes only as JSON.
+There's no sign-in, so the server listens on `127.0.0.1` only, refuses any host name other than `localhost` and `127.0.0.1`, allows no other site to call it, and takes changes only as JSON. Vite's address for opening files in an editor answers 404.
 
 ### Commands and settings
 
@@ -275,30 +297,18 @@ Colors:
 
 ### Chosen look
 
-Mockup D (mockup 4), Stream with blocks: `docs/mockups/d-stream-blocks.html`, with `d-stream-blocks-dashboard.png` and `d-stream-blocks-pipeline.png` beside it.
+Mockup D, Stream with blocks: `docs/mockups/d-stream-blocks.html`, with `d-stream-blocks-dashboard.png` and `d-stream-blocks-pipeline.png` beside it. It's the reference for how the dashboard and pipeline look. Where it and this spec differ, this spec is right: for example, overdue follow-ups show their date, which mockup D doesn't.
 
-It's mockup A (mockup 1), Stream, with two parts of mockup B (mockup 2), Bold:
+## Not built yet
 
-- **Pipeline headings:** straight, equal, rounded blocks in the stage colors, in place of A's ribbon across the columns. It wasn't clear why the ribbon's pieces had different shapes.
-- **Open deals by stage:** B's panel, on the dashboard under the funnel. It replaces the small bars under A's ribbon, which showed the same figures.
-
-Why A: it's the closest to the brand and this spec, and its ribbon shows at a glance how far deals get.
-
-## Not in this version
-
-As listed under Constraints in `docs/intent.md`.
-
-## Success criteria
-
-Where each criterion in `docs/intent.md` is covered.
-
-| Criterion | Requirements |
-|---|---|
-| 1 Starts with one command, with sample data | G1, R1 to R4, S1 to S4 |
-| 2 Add, find, sort, edit, delete; kept; reset | G3, T1 to T3, O1, C1, D1, X1, R4 to R6 |
-| 3 Status filter, linked records, adding already linked | T4, O2, O3, C2, C3, D7 |
-| 4 Pipeline | C4, D3 to D6, P1 to P8 |
-| 5 Timelines and follow-ups | A1 to A8, B5 |
-| 6 The dashboard matches the data | B1 to B7 |
-| 7 Look | Q1, Q3, Q4, Look, Chosen look |
-| 8 Used end to end in a real browser | Q1, Q5, and the whole of this spec |
+- Sign-in, user accounts, several people sharing the same data, and a record of who did what
+- Making Accountable available beyond the computer it runs on
+- A dark mode or a layout for phones
+- AI features
+- Email, calendar or phone integrations
+- Currencies other than US dollars
+- Reports beyond the dashboard
+- Tags or custom fields
+- Changing the pipeline stages
+- Recording why a deal was lost
+- Importing or exporting data

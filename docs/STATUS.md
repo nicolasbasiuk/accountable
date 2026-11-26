@@ -14,12 +14,13 @@ The data is in `data/accountable.db`, and the copies are in `data/backups/`. Git
 
 ## What's done
 
-- Plan: `docs/intent.md` agreed for the MVP.
+- Plan: `docs/changes/mvp/intent.md` agreed for the MVP.
 - Design: `docs/spec.md` agreed for the MVP.
 - Look: mockup D chosen from four in `docs/mockups/` (A with two parts from B). Recorded in `docs/spec.md` under Chosen look.
-- Build: all nine phases of `docs/plan.md`. Every requirement in `docs/spec.md` is built.
+- Build: all nine phases of `docs/changes/mvp/plan.md`. Every requirement in `docs/spec.md` is built.
 - Test, first part: `npm test` is in `AGENTS.md`. A stray `it.only` in a frontend test now fails it, as `test.only` already did in an end-to-end test.
 - Test, second part: the dashboard and pipeline were compared with mockup D using Playwright, and what differed was fixed: the two month charts, the section icons, the digits in late and overdue tags, and small sizes and gaps.
+- Harness, the repo as memory: the MVP's `intent.md` and `plan.md` are in `docs/changes/mvp/`. `docs/spec.md` now describes the whole product, with the problem from the intent and what the review fixes added (G4, G6, G7, G8, P8, API). `AGENTS.md` reads it first, and `docs/REVIEW.md` flags code it doesn't describe.
 
 ## Review findings
 
