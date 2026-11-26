@@ -11,6 +11,7 @@ Make a separate pass over every change for each of these:
 - **Security:** no secrets or personal data are exposed, and nobody can do what they shouldn't.
 - **Matches spec.md and plan.md:** the change does what `docs/spec.md` and its own `docs/changes/<branch name>/plan.md` say, with nothing missing and nothing extra.
 - **Described in spec.md:** flag any code that `docs/spec.md` doesn't describe.
+- **Follows STANDARDS.md:** the change follows the coding guidelines in `docs/STANDARDS.md`.
 
 ## Important
 
