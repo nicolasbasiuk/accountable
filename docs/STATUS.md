@@ -8,7 +8,7 @@ You need Node.js 24 or later and uv. The commands are the same on Mac, Linux and
 |---|---|
 | `npm run dev` | Starts Accountable, installing what's missing first. Open `http://localhost:5173`. Ctrl+C stops it |
 | `npm run seed` | Saves a copy of the data, asks, then resets it to the sample data. `npm run seed -- --yes` doesn't ask |
-| `npm test` | The type check and every test, in about four minutes. Needs Google Chrome. Uses a database and ports of its own, so Accountable can be running |
+| `npm test` | The type check and every test, in about five minutes. Needs Google Chrome. Uses a database and ports of its own, so Accountable can be running |
 | `npm run check` | Prettier, ESLint, ruff, tsc and gitleaks, then `npm test`. Needs gitleaks: `brew install gitleaks` on a Mac, `winget install -e --id Gitleaks.Gitleaks` on Windows |
 | `npm run check:quick` | `npm run check` without the end-to-end tests, in about ten seconds |
 | `npm run format` | Fixes the formatting that `npm run check` checks |
@@ -31,7 +31,8 @@ The data is in `data/accountable.db`, and the copies are in `data/backups/`. Git
 - Harness, the `.env` guard: a Claude Code `PreToolUse` hook in `.claude/settings.json` runs `.claude/hooks/protect-env.mjs`, which stops Edit, Write, MultiEdit and NotebookEdit on any file named `.env`, or linked to one, and any Bash or PowerShell command that names a `.env` file. `.env.example` stays free. A command that only mentions `.env`, such as a commit message about it, is stopped too.
 - Harness, CI: `.github/workflows/ci.yml`, one job named `check` on every push to any branch. It installs gitleaks 8.30.1, checking the download's checksum, and runs it on every commit. Then it sets up Node 26 and the latest uv, with `astral-sh/setup-uv@v10.4.0`, and runs `npm run check:quick`. No secrets.
 - Harness, improving it: `docs/IMPROVE.md`, which `AGENTS.md` says to follow at Deploy, after the review fixes and before the merge.
-- Dark mode, built on branch `dark-mode` from `docs/changes/dark-mode/plan.md`: a Dark mode switch at the foot of the sidebar, kept in the browser and applied before the page is drawn (G10). Colors named after a role have a dark value in `styles.css`; colors named after a color never change. Light mode is unchanged to the pixel (`docs/changes/dark-mode/light-check.md`), and the dashboard and pipeline in both modes are in `docs/changes/dark-mode/screenshots/`. Not yet reviewed or merged.
+- Dark mode, built on branch `dark-mode` from `docs/changes/dark-mode/plan.md`: a Dark mode switch at the foot of the sidebar, kept in the browser and applied before the page is drawn (G10). Colors named after a role have a dark value in `styles.css`; colors named after a color never change. Light mode is unchanged to the pixel (`docs/changes/dark-mode/light-check.md`), and the dashboard and pipeline in both modes are in `docs/changes/dark-mode/screenshots/`. Reviewed, with findings 16, 17, 19 and 20 still open. Not yet merged.
+- Harness, improved after dark mode with `docs/IMPROVE.md`: the review's findings are below; `AGENTS.md` has "Mistakes made twice", starting with a set handled unevenly; the check times are updated; and `docs/IMPROVE.md` says where to find what went wrong, and to time the checks.
 
 ## Review findings
 
@@ -62,6 +63,16 @@ The second. 10 to 13 are fixed, each with a test that failed before its fix. 14 
 | 14 | Nit | With slow saves, a card dropped above one that's then moved shows at the bottom until the board reloads | P3 | Open |
 | 15 | Nit | With a slow first save, ticking and unticking a follow-up can leave it done | A3 | Open |
 
+From the review of `dark-mode` against `main`. None is Important. 18 is fixed; the others are open.
+
+| # | Kind | Finding | Rule | Fix |
+|---|---|---|---|---|
+| 16 | Nit | In dark mode, the plus on Lost's Add button is faint (2.9 to 1), and almost vanishes on hover (1.5 to 1). Won's button got its own look for dark mode; Lost's, whose block also turned dark, didn't | G10 | Open |
+| 17 | Nit | The revenue chart's hover line is Sea Mist in both modes: faint on white, the brightest line on black | G10 | Open |
+| 18 | Nit | `npm run check` took about five minutes, not the four `AGENTS.md` and this file said | - | Updated |
+| 19 | Nit | A test in `e2e/mode.spec.ts` finds Won's block by how the page's HTML is nested | STANDARDS 6 | Open |
+| 20 | Nit | `docs/spec.md` doesn't say what happens when the browser refuses storage, or that the browser's own controls turn dark | Not in the spec | Open |
+
 ## What's been checked
 
 - `npm test`: 427 backend tests, 240 frontend tests and 145 end-to-end tests in Chrome.
@@ -85,4 +96,4 @@ The second. 10 to 13 are fixed, each with a test that failed before its fix. 14 
 
 ## Next
 
-- The rest of the Test stage: use the app by hand.
+- Dark mode: fix findings 16, 17, 19 and 20, then merge.
