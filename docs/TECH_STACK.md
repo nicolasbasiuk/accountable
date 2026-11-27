@@ -26,6 +26,8 @@ The checks:
 
 A lefthook pre-commit hook, in `lefthook.yml`, formats the staged files, then runs ESLint and ruff check on them, tsc on the whole frontend and end-to-end tests, and gitleaks on what is staged. It leaves out the tests, so it stays quick.
 
+CI is GitHub Actions, in `.github/workflows/ci.yml`. On every push to any branch, its one job, `check`, runs gitleaks on every commit first, then `npm run check:quick`. The end-to-end tests run only on your computer, in `npm run check`.
+
 `docs/STATUS.md` says how to run the app. `README.md` is the course's own guide, so leave it as it is.
 
 Testing will cover:

@@ -249,6 +249,7 @@ There's no sign-in, so the server listens on `127.0.0.1` only, refuses any host 
 - The backup in R5 uses SQLite's own backup, and the reset is one transaction, so both are safe while the app runs.
 - `npm run check` runs Prettier and ESLint on the frontend, ruff format and ruff check on the backend, tsc, gitleaks, then `npm test`. All of them run, even if one fails, and it says which failed. `npm run check:quick` leaves out the end-to-end tests, and `npm run format` fixes the formatting.
 - Each commit runs the pre-commit hook in `lefthook.yml`: Prettier and ruff format on the staged files, which stay staged, then ESLint, ruff check, tsc and gitleaks. Any failure stops the commit. It leaves out the tests. The first install sets the hook up, because `--ignore-scripts` stops lefthook doing it itself.
+- CI, in `.github/workflows/ci.yml`, runs on every push to any branch. Its one job, `check`, runs gitleaks on every commit in the history, so a secret that a later commit removed still fails it, and stops there if it finds one. Then it installs Node and uv and runs `npm run check:quick`. It uses no secrets.
 - `ACCOUNTABLE_DB` sets the database file, `ACCOUNTABLE_TODAY` fixes today's date, and the ports can be set too. Tests use these; nobody else needs them.
 
 ### Screens
