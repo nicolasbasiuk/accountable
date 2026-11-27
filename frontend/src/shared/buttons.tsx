@@ -2,9 +2,9 @@ import { Plus } from 'lucide-react'
 import type { ComponentProps, ReactNode } from 'react'
 
 const LOOKS = {
-  main: 'bg-sea-green text-midnight hover:bg-[#05c795]',
+  main: 'bg-sea-green text-midnight hover:bg-sea-green-hover',
   quiet: 'bg-wash text-ink hover:bg-hair',
-  danger: 'bg-raspberry text-white hover:bg-[#e33c65]',
+  danger: 'bg-raspberry text-white hover:bg-raspberry-hover',
 }
 
 type ButtonProps = ComponentProps<'button'> & { look?: keyof typeof LOOKS }

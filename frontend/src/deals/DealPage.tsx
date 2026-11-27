@@ -112,7 +112,7 @@ function StagePath({ stage }: { stage: Stage }) {
         <li
           key={key}
           aria-current={key === stage ? 'step' : undefined}
-          className={`rounded-control px-4 py-2.5 ${key === stage ? `font-semibold ${STAGE_LOOKS[key].block}` : 'bg-white text-muted'}`}
+          className={`rounded-control px-4 py-2.5 ${key === stage ? `font-semibold ${STAGE_LOOKS[key].block}` : 'bg-panel text-muted'}`}
         >
           {stageInfo(config, key).name}
         </li>

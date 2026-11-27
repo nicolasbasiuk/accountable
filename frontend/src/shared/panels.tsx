@@ -10,7 +10,7 @@ export function Panel({
   children: ReactNode
 }) {
   return (
-    <section aria-label={label} className={`rounded-panel bg-white ${className}`}>
+    <section aria-label={label} className={`rounded-panel bg-panel ${className}`}>
       {children}
     </section>
   )

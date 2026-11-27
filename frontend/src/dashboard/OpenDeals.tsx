@@ -5,7 +5,7 @@ import { money, plural } from '../shared/format'
 import { ChartPanel, Tip, TipOn } from './ChartPanel'
 import type { OpenStage } from './queries'
 
-const light = (color: string) => `color-mix(in srgb, ${color} 30%, var(--color-white))`
+const light = (color: string) => `color-mix(in srgb, ${color} 30%, var(--color-panel))`
 
 /** The open value of each stage, with its expected revenue in the solid part (B3). */
 export function OpenDeals({ stages }: { stages: OpenStage[] }) {

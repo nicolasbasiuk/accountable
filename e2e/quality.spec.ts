@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 import type { Page } from '@playwright/test'
-import { API_PORT, api, dialog, expect, open, panel, question, rows, search, test } from './support'
+import { API_PORT, api, dialog, expect, inDarkMode, open, panel, question, rows, search, test } from './support'
 
 const SCREENS = ['/', '/organizations', '/organizations/1', '/contacts', '/contacts/1', '/deals', '/deals/1', '/pipeline', '/nowhere']
 
@@ -96,77 +96,84 @@ async function checkAccessibility(page: Page, what: string, without: string[] = 
   expect(left, what).toEqual([])
 }
 
-test.describe('the accessibility check', () => {
-  for (const address of SCREENS) {
-    test(`of ${address}`, async ({ page }) => {
-      await openFully(page, address)
-      await checkAccessibility(page, address)
+// In both modes, as dark mode's text meets the same contrast rules (Q3).
+for (const mode of ['light', 'dark'] as const) {
+  test.describe(`the accessibility check, in ${mode} mode`, () => {
+    test.beforeEach(async ({ page }) => {
+      if (mode === 'dark') await inDarkMode(page)
     })
-  }
 
-  test("of the charts' tables", async ({ page }) => {
-    await openFully(page, '/')
-    const buttons = page.getByRole('button', { name: /^Show table/ })
-    for (let left = 4; left > 0; left -= 1) {
-      await expect(buttons).toHaveCount(left)
-      await buttons.first().click()
+    for (const address of SCREENS) {
+      test(`of ${address}`, async ({ page }) => {
+        await openFully(page, address)
+        await checkAccessibility(page, address)
+      })
     }
-    await checkAccessibility(page, 'tables')
-  })
 
-  for (const [name, address, button] of [
-    ['organization', '/organizations', 'Add organization'],
-    ['contact', '/contacts', 'Add contact'],
-    ['deal', '/deals', 'Add deal'],
-    ['activity', '/deals/1', 'Log activity'],
-  ] as const) {
-    test(`of the ${name} form, with problems`, async ({ page }) => {
-      await openFully(page, address)
-      await page.getByRole('button', { name: button }).click()
-      await expect(dialog(page)).toBeVisible()
-      await checkAccessibility(page, 'form')
-      if (name === 'activity') await dialog(page).getByLabel('Happened').fill('')
-      await dialog(page).getByRole('button', { name: button }).click()
-      await expect(dialog(page).getByText(/^Enter a/).first()).toBeVisible()
-      await checkAccessibility(page, 'form with problems')
+    test("of the charts' tables", async ({ page }) => {
+      await openFully(page, '/')
+      const buttons = page.getByRole('button', { name: /^Show table/ })
+      for (let left = 4; left > 0; left -= 1) {
+        await expect(buttons).toHaveCount(left)
+        await buttons.first().click()
+      }
+      await checkAccessibility(page, 'tables')
     })
-  }
 
-  test('of the pickers, the questions and a message', async ({ page }) => {
-    await openFully(page, '/deals')
-    await page.getByRole('button', { name: 'Add deal' }).click()
-    await dialog(page).getByRole('button', { name: 'Show every contact' }).click()
-    await expect(page.getByRole('option').first()).toBeVisible()
-    // A list that opens over the page isn't in one of its landmarks, and needn't be.
-    await checkAccessibility(page, 'contact picker', ['region'])
-    await page.keyboard.press('Escape')
-    await dialog(page).getByRole('combobox', { name: 'Stage' }).click()
-    await expect(page.getByRole('option').first()).toBeVisible()
-    await checkAccessibility(page, 'stage list', ['region'])
-    await page.keyboard.press('Escape')
-    await dialog(page).getByLabel('Name').fill('Zebra system')
-    await page.keyboard.press('Escape')
-    await expect(question(page)).toBeVisible()
-    await checkAccessibility(page, 'discard question')
-    await question(page).getByRole('button', { name: 'Discard changes' }).click()
-    await expect(dialog(page)).toBeHidden()
+    for (const [name, address, button] of [
+      ['organization', '/organizations', 'Add organization'],
+      ['contact', '/contacts', 'Add contact'],
+      ['deal', '/deals', 'Add deal'],
+      ['activity', '/deals/1', 'Log activity'],
+    ] as const) {
+      test(`of the ${name} form, with problems`, async ({ page }) => {
+        await openFully(page, address)
+        await page.getByRole('button', { name: button }).click()
+        await expect(dialog(page)).toBeVisible()
+        await checkAccessibility(page, 'form')
+        if (name === 'activity') await dialog(page).getByLabel('Happened').fill('')
+        await dialog(page).getByRole('button', { name: button }).click()
+        await expect(dialog(page).getByText(/^Enter a/).first()).toBeVisible()
+        await checkAccessibility(page, 'form with problems')
+      })
+    }
 
-    await page.getByRole('button', { name: /^Delete/ }).first().click()
-    await expect(question(page).getByText("This can't be undone.")).toBeVisible()
-    await checkAccessibility(page, 'delete question')
-    await question(page).getByRole('button', { name: 'Delete deal' }).click()
-    await expect(page.getByText(/^Deleted/)).toBeVisible()
-    await checkAccessibility(page, 'message')
+    test('of the pickers, the questions and a message', async ({ page }) => {
+      await openFully(page, '/deals')
+      await page.getByRole('button', { name: 'Add deal' }).click()
+      await dialog(page).getByRole('button', { name: 'Show every contact' }).click()
+      await expect(page.getByRole('option').first()).toBeVisible()
+      // A list that opens over the page isn't in one of its landmarks, and needn't be.
+      await checkAccessibility(page, 'contact picker', ['region'])
+      await page.keyboard.press('Escape')
+      await dialog(page).getByRole('combobox', { name: 'Stage' }).click()
+      await expect(page.getByRole('option').first()).toBeVisible()
+      await checkAccessibility(page, 'stage list', ['region'])
+      await page.keyboard.press('Escape')
+      await dialog(page).getByLabel('Name').fill('Zebra system')
+      await page.keyboard.press('Escape')
+      await expect(question(page)).toBeVisible()
+      await checkAccessibility(page, 'discard question')
+      await question(page).getByRole('button', { name: 'Discard changes' }).click()
+      await expect(dialog(page)).toBeHidden()
+
+      await page.getByRole('button', { name: /^Delete/ }).first().click()
+      await expect(question(page).getByText("This can't be undone.")).toBeVisible()
+      await checkAccessibility(page, 'delete question')
+      await question(page).getByRole('button', { name: 'Delete deal' }).click()
+      await expect(page.getByText(/^Deleted/)).toBeVisible()
+      await checkAccessibility(page, 'message')
+    })
+
+    test('of a held card', async ({ page }) => {
+      await openFully(page, '/pipeline')
+      await page.getByRole('article').getByRole('link').first().focus()
+      await page.keyboard.press('Space')
+      await expect(page.getByRole('article').first()).toHaveCSS('position', 'fixed')
+      await checkAccessibility(page, 'held card')
+    })
   })
-
-  test('of a held card', async ({ page }) => {
-    await openFully(page, '/pipeline')
-    await page.getByRole('article').getByRole('link').first().focus()
-    await page.keyboard.press('Space')
-    await expect(page.getByRole('article').first()).toHaveCSS('position', 'fixed')
-    await checkAccessibility(page, 'held card')
-  })
-})
+}
 
 test.describe('with the keyboard only', () => {
   /** Presses Tab until a control has the focus, checking that each stop can be seen. */

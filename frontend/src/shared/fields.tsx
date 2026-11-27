@@ -6,7 +6,7 @@ import { useId, type ComponentProps, type ReactNode } from 'react'
 
 export const CONTROL = 'w-full rounded-control bg-page px-3.5 placeholder:text-muted'
 export const POPUP =
-  'max-h-72 w-(--anchor-width) overflow-y-auto rounded-control bg-white p-1.5 shadow-lifted outline-none transition-opacity duration-100 data-ending-style:opacity-0 data-starting-style:opacity-0'
+  'max-h-72 w-(--anchor-width) overflow-y-auto rounded-control bg-raised p-1.5 shadow-lifted outline-none transition-opacity duration-100 data-ending-style:opacity-0 data-starting-style:opacity-0'
 export const ITEM =
   'flex cursor-default items-center gap-2.5 rounded-tag px-2.5 py-2 data-highlighted:bg-wash focus-visible:rounded-tag focus-visible:-outline-offset-2 focus-visible:outline-2'
 
@@ -36,7 +36,7 @@ export function Field({
 function Problem({ id, children }: { id: string; children?: string }) {
   return (
     children && (
-      <p id={id} className="mt-1.5 text-sm font-medium text-coral-dark">
+      <p id={id} className="mt-1.5 text-sm font-medium text-coral-text">
         {children}
       </p>
     )
@@ -114,7 +114,7 @@ export function ChoiceField({
         {options.map((option) => (
           <label
             key={option.value}
-            className="flex h-9 flex-1 cursor-pointer items-center justify-center gap-2 rounded-tag px-3 font-medium text-muted has-checked:bg-white has-checked:font-semibold has-checked:text-ink has-focus-visible:outline-3 has-focus-visible:outline-offset-2 has-focus-visible:outline-cerulean"
+            className="flex h-9 flex-1 cursor-pointer items-center justify-center gap-2 rounded-tag px-3 font-medium text-muted has-checked:bg-panel has-checked:font-semibold has-checked:text-ink has-focus-visible:outline-3 has-focus-visible:outline-offset-2 has-focus-visible:outline-cerulean"
           >
             <input type="radio" {...input} value={option.value} className="sr-only" />
             {option.show ?? option.label}

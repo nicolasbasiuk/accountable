@@ -9,7 +9,7 @@ import { PipelineCard } from './PipelineCard'
 // The Add button, a shade lighter or darker than its block.
 const ADD_LOOKS: Partial<Record<Stage, string>> = {
   negotiation: 'bg-black/20 hover:bg-black/30',
-  won: 'bg-white/16 hover:bg-white/25',
+  won: 'bg-on-won/16 hover:bg-on-won/25',
 }
 
 export function PipelineColumn({ column, onAdd }: { column: Column; onAdd: () => void }) {

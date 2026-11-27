@@ -311,7 +311,7 @@ Colors, in light mode, the default, and dark mode (G10):
 
 ### Chosen look
 
-Mockup D, Stream with blocks: `docs/mockups/d-stream-blocks.html`, with `d-stream-blocks-dashboard.png` and `d-stream-blocks-pipeline.png` beside it. It's the reference for how the dashboard and pipeline look. Where it and this spec differ, this spec is right: for example, overdue follow-ups show their date, which mockup D doesn't. Dark mode has no mockup: it's mockup D in the dark colors above, and `docs/changes/dark-mode/` has screenshots of the dashboard and the pipeline in both modes.
+Mockup D, Stream with blocks: `docs/mockups/d-stream-blocks.html`, with `d-stream-blocks-dashboard.png` and `d-stream-blocks-pipeline.png` beside it. It's the reference for how the dashboard and pipeline look. Where it and this spec differ, this spec is right: for example, overdue follow-ups show their date, which mockup D doesn't. Dark mode has no mockup: it's mockup D in the dark colors above, and `docs/changes/dark-mode/screenshots/` has the dashboard and the pipeline in both modes.
 
 ## Not built yet
 

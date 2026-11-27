@@ -92,7 +92,7 @@ export function FormDialog<V extends FieldValues>({ title, submit, form, onSave,
             <form noValidate onSubmit={onSubmit}>
               <div className="grid grid-cols-2 gap-x-4 gap-y-4.5">{children}</div>
               {problem && (
-                <p role="alert" className="mt-5 rounded-control bg-page px-4 py-3 font-medium text-coral-dark">
+                <p role="alert" className="mt-5 rounded-control bg-page px-4 py-3 font-medium text-coral-text">
                   Not saved. {problem}
                 </p>
               )}

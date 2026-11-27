@@ -15,7 +15,7 @@ export function PipelineCard({ card, index }: { card: Card; index: number }) {
         <article
           ref={provided.innerRef}
           {...provided.draggableProps}
-          className={`relative mb-2 min-w-0 rounded-card bg-white p-2.75 has-focus-visible:outline-3 has-focus-visible:-outline-offset-3 has-focus-visible:outline-cerulean min-[1401px]:px-3.25 min-[1401px]:py-3 ${snapshot.isDragging ? 'shadow-lifted' : ''}`}
+          className={`relative mb-2 min-w-0 rounded-card bg-panel p-2.75 has-focus-visible:outline-3 has-focus-visible:-outline-offset-3 has-focus-visible:outline-cerulean min-[1401px]:px-3.25 min-[1401px]:py-3 ${snapshot.isDragging ? 'shadow-lifted' : ''}`}
         >
           <Link
             to={`/deals/${card.id}`}

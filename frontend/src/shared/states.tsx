@@ -51,7 +51,7 @@ export function OutOfDate() {
   const error = useRefreshError()
   if (!error) return null
   return (
-    <div role="alert" className="mx-5 mt-5 flex items-center gap-4 rounded-control bg-white px-5 py-3">
+    <div role="alert" className="mx-5 mt-5 flex items-center gap-4 rounded-control bg-panel px-5 py-3">
       <CircleAlert size={20} aria-hidden className="text-raspberry" />
       <p className="flex-1">
         <span className="font-semibold">{explain(error)}</span> What you see may be out of date.

@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 export const BACKDROP =
   'fixed inset-0 bg-midnight/40 transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0'
 export const DIALOG =
-  'max-h-[calc(100vh-3rem)] overflow-y-auto rounded-panel bg-white p-7 shadow-lifted outline-none transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0'
+  'max-h-[calc(100vh-3rem)] overflow-y-auto rounded-panel bg-panel p-7 shadow-lifted outline-none transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0'
 export const VIEWPORT = 'fixed inset-0 z-30 grid place-items-center p-6'
 
 type QuestionProps = {

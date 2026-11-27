@@ -20,7 +20,7 @@ import { scale } from './scale'
 
 const HEIGHT = 206
 const GREEN = 'var(--color-sea-green)'
-const DARK_GREEN = 'var(--color-green-dark)'
+const GREEN_LINE = 'var(--color-green-line)'
 const HAIR = 'var(--color-hair)'
 const TEXT = { fontFamily: 'var(--font-mono)', fontSize: 12, fill: 'var(--color-ink)' }
 const LABEL = { ...TEXT, fontWeight: 600 }
@@ -82,13 +82,13 @@ export function MonthCharts({ months }: { months: Month[] }) {
               <Area
                 dataKey="value"
                 type="monotone"
-                stroke={DARK_GREEN}
+                stroke={GREEN_LINE}
                 strokeWidth={2.5}
                 fill={GREEN}
                 fillOpacity={0.16}
                 isAnimationActive={false}
                 dot={false}
-                activeDot={{ r: 5, fill: DARK_GREEN, stroke: 'var(--color-white)', strokeWidth: 2 }}
+                activeDot={{ r: 5, fill: GREEN_LINE, stroke: 'var(--color-panel)', strokeWidth: 2 }}
               />
               {highest !== last && <Point month={highest} place="top" />}
               <Point month={last} place="right" />
@@ -141,8 +141,8 @@ function Point({ month, place }: { month: Month; place: 'top' | 'right' }) {
       x={month.month}
       y={month.value}
       r={5}
-      fill={DARK_GREEN}
-      stroke="var(--color-white)"
+      fill={GREEN_LINE}
+      stroke="var(--color-panel)"
       strokeWidth={2}
       label={{ value: money(month.value), position: place, offset: place === 'top' ? 8 : 7, style: LABEL }}
     />

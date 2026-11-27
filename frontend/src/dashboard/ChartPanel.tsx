@@ -62,7 +62,7 @@ function Figures({ heading, headings, rows }: Table & { heading: string }) {
 /** What a tooltip looks like, on every chart. */
 export function Tip({ heading, lines }: { heading: string; lines: string[] }) {
   return (
-    <div className="rounded-control bg-white px-3.5 py-2.5 text-sm shadow-lifted">
+    <div className="rounded-control bg-raised px-3.5 py-2.5 text-sm shadow-lifted">
       <p className="font-semibold">{heading}</p>
       {lines.map((line) => (
         <p key={line} className="num text-xs">

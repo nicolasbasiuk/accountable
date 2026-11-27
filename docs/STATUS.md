@@ -31,6 +31,7 @@ The data is in `data/accountable.db`, and the copies are in `data/backups/`. Git
 - Harness, the `.env` guard: a Claude Code `PreToolUse` hook in `.claude/settings.json` runs `.claude/hooks/protect-env.mjs`, which stops Edit, Write, MultiEdit and NotebookEdit on any file named `.env`, or linked to one, and any Bash or PowerShell command that names a `.env` file. `.env.example` stays free. A command that only mentions `.env`, such as a commit message about it, is stopped too.
 - Harness, CI: `.github/workflows/ci.yml`, one job named `check` on every push to any branch. It installs gitleaks 8.30.1, checking the download's checksum, and runs it on every commit. Then it sets up Node 26 and the latest uv, with `astral-sh/setup-uv@v10.4.0`, and runs `npm run check:quick`. No secrets.
 - Harness, improving it: `docs/IMPROVE.md`, which `AGENTS.md` says to follow at Deploy, after the review fixes and before the merge.
+- Dark mode, built on branch `dark-mode` from `docs/changes/dark-mode/plan.md`: a Dark mode switch at the foot of the sidebar, kept in the browser and applied before the page is drawn (G10). Colors named after a role have a dark value in `styles.css`; colors named after a color never change. Light mode is unchanged to the pixel (`docs/changes/dark-mode/light-check.md`), and the dashboard and pipeline in both modes are in `docs/changes/dark-mode/screenshots/`. Not yet reviewed or merged.
 
 ## Review findings
 
@@ -63,7 +64,8 @@ The second. 10 to 13 are fixed, each with a test that failed before its fix. 14 
 
 ## What's been checked
 
-- `npm test`: 427 backend tests, 192 frontend tests and 122 end-to-end tests in Chrome.
+- `npm test`: 427 backend tests, 240 frontend tests and 145 end-to-end tests in Chrome.
+- Dark mode: the accessibility check runs on every screen, form, picker, question, message and held card in both modes. Every screen was looked at in dark mode at the three sizes. The light check compared 12 screens and states before and after, pixel for pixel. Each new test was made to fail once on purpose: a white panel, faint dark text, no script in `index.html`, a panel one shade off.
 - `npm run check` passes. `npm run check:quick` leaves out the end-to-end tests, and with a badly formatted, unused variable it named Prettier and ESLint and exited with 1. gitleaks allows a token in `.env` and finds the same token anywhere else, including a `.env` in a subfolder.
 - The pre-commit hook, with real commits in a copy of the repo: unformatted frontend and backend code was committed formatted; an ESLint error, a ruff error, a type error, a deleted file still imported and a token in a doc each stopped the commit; a partly staged file kept its unstaged part; a doc-only commit skipped the formatters and linters. Each commit took 0.5 to 1.6 seconds.
 - The `.env` guard: 21 tool calls piped into it, 15 stopped and 6 let through as expected, including a link to a `.env` and input it can't read, which it stops. Live in Claude Code, it stopped a Bash command and a Write naming `.env`, and let a Write to `.env.example` through.

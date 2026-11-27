@@ -129,5 +129,20 @@ export async function pickStage(within: Locator, page: Page, name: string) {
   await expect(within.getByRole('combobox', { name: 'Stage' })).toContainText(name)
 }
 
+/** Where the app keeps the chosen mode (G10), as in `frontend/src/mode.ts`. */
+export const MODE_KEY = 'accountable-mode'
+
+/** Starts the page in dark mode, as if it had been chosen before. A choice made later in the test is kept. */
+export async function inDarkMode(page: Page) {
+  await page.addInitScript((key) => {
+    if (location.protocol.startsWith('http') && localStorage.getItem(key) === null) localStorage.setItem(key, 'dark')
+  }, MODE_KEY)
+}
+
+/** The mode the page shows. */
+export const shownMode = (page: Page) => page.evaluate(() => document.documentElement.dataset.mode ?? 'light')
+
+export const modeSwitch = (page: Page) => page.getByRole('switch', { name: 'Dark mode' })
+
 /** The panel with a heading, such as "Deals" on an organization's page. */
 export const panel = (page: Page, heading: string) => page.getByRole('region', { name: heading, exact: true })

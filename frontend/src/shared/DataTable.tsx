@@ -163,7 +163,7 @@ export function DataTable<T extends Row>(props: Props<T>) {
             placeholder="Search"
             value={state.search}
             onChange={(event) => change({ search: event.target.value })}
-            className="h-11 w-full rounded-control bg-white pr-3 pl-10.5 placeholder:text-muted"
+            className="h-11 w-full rounded-control bg-panel pr-3 pl-10.5 placeholder:text-muted"
           />
         </div>
         {filter && (
@@ -174,7 +174,7 @@ export function DataTable<T extends Row>(props: Props<T>) {
                 type="button"
                 aria-pressed={state.filter === value}
                 onClick={() => change({ filter: value })}
-                className="flex h-9 cursor-pointer items-center gap-2 rounded-tag px-3.5 font-medium text-muted hover:text-ink aria-pressed:bg-white aria-pressed:font-semibold aria-pressed:text-ink"
+                className="flex h-9 cursor-pointer items-center gap-2 rounded-tag px-3.5 font-medium text-muted hover:text-ink aria-pressed:bg-panel aria-pressed:font-semibold aria-pressed:text-ink"
               >
                 {label} <span className="num text-sm">{value ? (counts.get(value) ?? 0) : all}</span>
               </button>
@@ -211,7 +211,7 @@ export function DataTable<T extends Row>(props: Props<T>) {
                         scope="col"
                         aria-sort={sorted ? (sorted === 'asc' ? 'ascending' : 'descending') : 'none'}
                         style={{ width }}
-                        className="sticky top-0 z-10 bg-white px-2 pt-3 pb-2 text-left first:pl-6"
+                        className="sticky top-0 z-10 bg-panel px-2 pt-3 pb-2 text-left first:pl-6"
                       >
                         <button
                           type="button"
@@ -225,7 +225,7 @@ export function DataTable<T extends Row>(props: Props<T>) {
                       </th>
                     )
                   })}
-                  <th scope="col" className="sticky top-0 z-10 w-22 bg-white pr-4">
+                  <th scope="col" className="sticky top-0 z-10 w-22 bg-panel pr-4">
                     <span className="sr-only">Actions</span>
                   </th>
                 </tr>

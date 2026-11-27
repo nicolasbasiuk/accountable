@@ -1,6 +1,8 @@
+import { Switch } from '@base-ui/react/switch'
 import { LayoutDashboard, Users } from 'lucide-react'
 import { NavLink, Outlet, ScrollRestoration } from 'react-router'
 import { DealsIcon, OrganizationsIcon, PipelineIcon } from './icons'
+import { setMode, useMode } from './mode'
 import { useCurrentConfig } from './shared/config'
 import { Messages } from './shared/Messages'
 import { ErrorState, OutOfDate } from './shared/states'
@@ -18,7 +20,7 @@ export function Frame() {
   return (
     <Messages>
       <div className="grid min-h-screen grid-cols-[208px_minmax(0,1fr)]">
-        <aside className="sticky top-0 h-screen px-3.5 py-7.5">
+        <aside className="sticky top-0 flex h-screen flex-col px-3.5 py-7.5">
           <div className="flex items-center gap-2.5 px-3 pb-7 text-[18px] leading-[26px] font-bold tracking-[-0.02em]">
             <Mark />
             Accountable
@@ -29,13 +31,14 @@ export function Frame() {
                 key={path}
                 to={path}
                 end={path === '/'}
-                className="flex items-center gap-3 rounded-control px-3 py-2.5 font-medium text-muted hover:text-ink aria-[current=page]:bg-white aria-[current=page]:font-semibold aria-[current=page]:text-ink"
+                className="flex items-center gap-3 rounded-control px-3 py-2.5 font-medium text-muted hover:text-ink aria-[current=page]:bg-panel aria-[current=page]:font-semibold aria-[current=page]:text-ink"
               >
                 <Icon size={18} aria-hidden />
                 {name}
               </NavLink>
             ))}
           </nav>
+          <ModeSwitch />
         </aside>
         <div className="min-w-0">
           {config.data && <OutOfDate />}
@@ -44,6 +47,23 @@ export function Frame() {
       </div>
       <ScrollRestoration />
     </Messages>
+  )
+}
+
+/** Turns dark mode on and off, at the foot of the sidebar on every page (G10). */
+function ModeSwitch() {
+  const mode = useMode()
+  return (
+    <label className="mt-auto flex cursor-pointer items-center gap-3 rounded-control px-3 py-2.5 font-medium text-muted hover:text-ink">
+      Dark mode
+      <Switch.Root
+        checked={mode === 'dark'}
+        onCheckedChange={(checked) => setMode(checked ? 'dark' : 'light')}
+        className="ml-auto flex h-5 w-8.5 flex-none cursor-pointer items-center rounded-full bg-muted p-0.5 data-checked:bg-green-line"
+      >
+        <Switch.Thumb className="size-4 rounded-full bg-panel transition-transform duration-150 data-checked:translate-x-3.5" />
+      </Switch.Root>
+    </label>
   )
 }
 

@@ -88,7 +88,7 @@ export function ConfirmDelete({ what, name, path, numbers, onDeleted, onClosed }
     >
       {known && <p>{[...consequences(what, known), "This can't be undone."].join(' ')}</p>}
       {problem && (
-        <p role="alert" className="mt-3 font-medium text-coral-dark">
+        <p role="alert" className="mt-3 font-medium text-coral-text">
           {deletion.error ? 'Not deleted. ' : ''}
           {explain(problem)}
         </p>

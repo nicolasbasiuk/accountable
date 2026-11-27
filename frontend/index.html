@@ -2,6 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <script>
+      // Dark mode before anything is drawn, so a dark page never flashes light (G10). src/mode.ts uses the same key.
+      try {
+        if (localStorage.getItem('accountable-mode') === 'dark') document.documentElement.dataset.mode = 'dark'
+      } catch {
+        // Storage refused: light.
+      }
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Accountable</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

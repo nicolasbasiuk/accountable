@@ -119,7 +119,7 @@ function Drawing({ funnel }: { funnel: FunnelStage[] }) {
                     width={54}
                     height={30}
                     rx={15}
-                    fill="var(--color-white)"
+                    fill="var(--color-panel)"
                   />
                   <text
                     x={parts[index]!.x}

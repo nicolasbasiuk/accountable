@@ -14,7 +14,10 @@ type Look = {
 const MIDNIGHT = 'var(--color-midnight)'
 const WHITE = 'var(--color-white)'
 
-/** A won deal shouldn't look like a warning, so Won is Midnight, and Raspberry only means late or overdue. */
+/**
+ * A won deal shouldn't look like a warning, so Won is the ink color, Midnight or Sea Mist by mode,
+ * and Raspberry only means late or overdue.
+ */
 export const STAGE_LOOKS: Record<Stage, Look> = {
   new: {
     fill: 'bg-sea-green',
@@ -30,7 +33,12 @@ export const STAGE_LOOKS: Record<Stage, Look> = {
   },
   proposal: { fill: 'bg-coral', block: 'bg-coral text-midnight', color: 'var(--color-coral)', onColor: MIDNIGHT },
   negotiation: { fill: 'bg-cerulean', block: 'bg-cerulean text-white', color: 'var(--color-cerulean)', onColor: WHITE },
-  won: { fill: 'bg-midnight', block: 'bg-midnight text-white', color: MIDNIGHT, onColor: WHITE },
-  // No text can be read well on Lost's own color, so its block is Sea Mist.
-  lost: { fill: 'bg-lost', block: 'bg-sea-mist text-midnight', color: 'var(--color-lost)', onColor: MIDNIGHT },
+  won: { fill: 'bg-won', block: 'bg-won text-on-won', color: 'var(--color-won)', onColor: 'var(--color-on-won)' },
+  // No text can be read well on Lost's own color, so its block is a quiet one close to the page.
+  lost: {
+    fill: 'bg-lost',
+    block: 'bg-lost-block text-on-lost-block',
+    color: 'var(--color-lost)',
+    onColor: 'var(--color-on-lost-block)',
+  },
 }
