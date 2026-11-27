@@ -14,6 +14,8 @@ A change updates `docs/spec.md` on its branch, so it still describes the whole p
 
 Update `docs/STATUS.md` when you finish a piece of work
 
+At Deploy, after the review fixes and before the merge, follow `docs/IMPROVE.md` to improve the harness
+
 ## Checks and tests
 
 `npm run check` runs Prettier and ESLint on the frontend, ruff format and ruff check on the backend, tsc, gitleaks across the repo, then `npm test`, and fails if any fail. It takes about four minutes. `npm test` runs the type check and all the unit and end-to-end tests. `npm run check:quick` is `npm run check` without the end-to-end tests. `npm run format` fixes the formatting.

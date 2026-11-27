@@ -30,6 +30,7 @@ The data is in `data/accountable.db`, and the copies are in `data/backups/`. Git
 - Harness, the pre-commit hook: `lefthook.yml` formats the staged files, then runs ESLint, ruff check, tsc and gitleaks. `npm run dev`, `npm test` and `npm run check` set it up when they install the packages.
 - Harness, the `.env` guard: a Claude Code `PreToolUse` hook in `.claude/settings.json` runs `.claude/hooks/protect-env.mjs`, which stops Edit, Write, MultiEdit and NotebookEdit on any file named `.env`, or linked to one, and any Bash or PowerShell command that names a `.env` file. `.env.example` stays free. A command that only mentions `.env`, such as a commit message about it, is stopped too.
 - Harness, CI: `.github/workflows/ci.yml`, one job named `check` on every push to any branch. It installs gitleaks 8.30.1, checking the download's checksum, and runs it on every commit. Then it sets up Node 26 and the latest uv, with `astral-sh/setup-uv@v10.4.0`, and runs `npm run check:quick`. No secrets.
+- Harness, improving it: `docs/IMPROVE.md`, which `AGENTS.md` says to follow at Deploy, after the review fixes and before the merge.
 
 ## Review findings
 
