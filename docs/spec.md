@@ -22,7 +22,7 @@ Accountable is a business management system: a sales CRM that will grow into a f
 - It runs locally with one command on Mac, Linux and Windows (R1). The first start installs what's missing and needs an internet connection; after that, none is needed (R2).
 - It's sized for the sample data and light use: a few hundred of each kind of record, with no speed target.
 - Every change is kept: it's still there after a refresh and after a restart.
-- Light mode only, for a laptop or desktop screen (Q1).
+- Light and dark mode (G10), for a laptop or desktop screen (Q1).
 
 ## Decisions
 
@@ -37,6 +37,10 @@ Questions settled in the design, and the answers:
 | Totals of the Won and Lost columns | The cards shown (P4, P5) |
 | Six stages, five brand colors | Brand order for the four open stages. A won deal shouldn't look like a warning, so Won is Midnight and Raspberry only means late or overdue |
 | White text on Cerulean (contrast 3.96) and Raspberry (3.62) is below the usual 4.5 | The exact brand colors (Q3) |
+| Won's Midnight almost vanishes on the dark page (1.35) and black cards (1.74) | In dark mode Won is Sea Mist, the ink on dark, as Midnight is the ink on light. Lost's column block, Sea Mist in light mode, is Midnight in dark mode, so Won and Lost never look the same |
+| Where the light or dark choice is kept | In the browser: no backend change, and a dark page never flashes light. A different browser starts in light (G10) |
+| Black menus, tooltips and messages would vanish over black panels | In dark mode they're Midnight, lighter than the panels they open over. Messages are already Midnight in light mode, so they don't change |
+| The Cerulean focus ring is under 3 to 1 on Sea Green (2.1), Marigold (2.4) and dark mode's Sea Mist (2.7) | Kept as it is, 3 pixels wide (Q2) |
 | The sample data's dates get old | Fine: `npm run seed` renews them |
 
 ## Requirements
@@ -52,6 +56,7 @@ Questions settled in the design, and the answers:
 - **G7** Money is whole US dollars with the currency, such as $125,000. Dates read Nov 24, 2026, and need a year of four digits, in the forms and the API. Open value is the total value of the open deals. Expected revenue is value times probability, and is rounded only when shown.
 - **G8** "Today" is the server's local date, everywhere. The app asks for it every minute, and loads everything again on a new day, so a screen left open past midnight follows it. Times are shown in local time.
 - **G9** Another tab's changes appear when this one gets the focus. If two tabs edit the same record, the last save wins.
+- **G10** A Dark mode switch at the foot of the sidebar, so on every page, turns dark mode on and off. Light is the default. The choice is kept in the browser, so it's still there after a refresh and a restart, and other open tabs switch too. It's applied before the page first draws, so a dark page never flashes light. Everything follows the mode, including charts, dialogs, menus and messages.
 
 ### Tables
 
@@ -175,7 +180,7 @@ Questions settled in the design, and the answers:
 
 - **Q1** Works in current Chrome from 1280 by 720 up, checked at 1280 by 720, 1440 by 900 and 1920 by 1080.
 - **Q2** Everything can be done with the keyboard, focus is always visible, and every control has a name a screen reader can read.
-- **Q3** Text contrast is at least 4.5, except the brand's white on Cerulean and Raspberry, which is always semi-bold and at least 14 pixels. Color is never the only sign of anything.
+- **Q3** Text contrast is at least 4.5 in both modes, except the brand's white on Cerulean and Raspberry, which is always semi-bold and at least 14 pixels. Color is never the only sign of anything.
 - **Q4** Motion is short, and off when the computer asks for reduced motion.
 - **Q5** No errors in the browser's console on any screen or action, except the one Chrome writes itself when a request fails: a record that's been deleted, a conflict, a failed save or a server that can't be reached.
 
@@ -200,6 +205,7 @@ The backend owns every rule: stage changes, lateness, timelines, the funnel and 
 | Dialogs, menus, pickers, messages | Base UI | Accessible, without a look of its own |
 | Forms | React Hook Form | |
 | Styling, icons, fonts | Tailwind CSS, Lucide, Fontsource | Fonts are packages, so they work offline |
+| Colors | Tokens in `frontend/src/styles.css`, each with a light and a dark value | One place for colors, no new dependency, and nothing for either mode scattered through the screens |
 
 Checked when they were chosen:
 
@@ -254,11 +260,11 @@ There's no sign-in, so the server listens on `127.0.0.1` only, refuses any host 
 
 ### Screens
 
-- **Frame:** a 208-pixel sidebar with the five sections, then the page: a heading, one main action, the content. A record's name is a link wherever it appears.
+- **Frame:** a 208-pixel sidebar with the five sections and, at its foot, the Dark mode switch, then the page: a heading, one main action, the content. A record's name is a link wherever it appears.
 - **Dashboard:** the four figures across the top; the line and bar charts; the funnel (B4) as one ribbon across the page, narrowing from New to Won; the pipeline by stage (B3) as a panel of bars, with expected revenue in the solid part of each; then follow-ups, grouped into overdue and due, beside recent activity, grouped by day. At 1440 by 900 the figures, both charts and the top of the funnel show without scrolling.
 - **Lists:** search and filter on the left, Add on the right, the table in one panel.
 - **Record pages:** details on one side with Edit and Delete, linked records under them, and the timeline beside them with Log activity at its top.
-- **Pipeline:** the board's figures, then six equal columns filling the height. Each column starts with a rounded block in its stage's color, all the same size, holding its name, figures and Add button; its white cards follow. On a screen narrower than 1280 pixels the page scrolls sideways.
+- **Pipeline:** the board's figures, then six equal columns filling the height. Each column starts with a rounded block in its stage's color, all the same size, holding its name, figures and Add button; its cards follow. On a screen narrower than 1280 pixels the page scrolls sideways.
 - **Forms:** one dialog for each kind of record, the same wherever it's opened.
 
 ### Look
@@ -271,17 +277,22 @@ Fonts:
 | Money, percentages, counts, dates, chart axes | JetBrains Mono, with digits of equal width |
 | The one line under the Dashboard heading, such as "6 follow-ups are overdue and 4 deals are late." | Instrument Serif |
 
-Colors:
+Colors, in light mode, the default, and dark mode (G10):
 
-| Use | Color |
-|---|---|
-| Page; panels and cards | `#F0F4F5`; white, rounded, no outline |
-| Text; secondary text | Midnight `#073B4C`; `#4F6C78` |
-| Main button | Sea Green, Midnight text |
-| Delete button | Raspberry, white text |
-| Links; focus ring | Midnight, underlined; Cerulean |
-| Late and overdue | Raspberry tag, white text |
-| Small green, gold or coral text | `#047A5B`, `#8A5D00`, `#B3452A` |
+| Use | Light | Dark |
+|---|---|---|
+| Page | `#F0F4F5` | `#04232E` |
+| Panels, cards and dialogs, rounded, no outline | White | Black |
+| Menus and tooltips | White | Midnight |
+| Text | Midnight `#073B4C` | Sea Mist `#CDD8DB` |
+| Secondary text | `#4F6C78` | `#93A9B1` |
+| Links | Midnight, underlined | Sea Mist, underlined |
+| Focus ring | Cerulean | Cerulean |
+| Main button | Sea Green, Midnight text | The same |
+| Delete button | Raspberry, white text | The same |
+| Late and overdue | Raspberry tag, white text | The same |
+| Messages | Midnight, white text, Sea Green action | The same |
+| Small green, gold or coral text | `#047A5B`, `#8A5D00`, `#B3452A` | `#51E2BC`, `#FFD47D`, `#F9AE97` |
 
 | Stage | Color | | Status | Color |
 |---|---|---|---|---|
@@ -289,24 +300,25 @@ Colors:
 | Qualified | Marigold | | Qualified | Marigold |
 | Proposal | Coral | | Customer | Sea Green |
 | Negotiation | Cerulean | | | |
-| Won | Midnight | | | |
+| Won | Midnight, or Sea Mist in dark mode | | | |
 | Lost | `#6B818A` | | | |
 
-- A stage or status is a colored dot with its name in Midnight, except in the pipeline's column blocks and the funnel, which are filled with the stage's color. Their text is Midnight, or white on Cerulean and Midnight. Lost's column block is Sea Mist `#CDD8DB` with Midnight text, because no text is readable enough on Lost's gray-blue. The name is always there: Marigold and Coral are too close to tell apart by color alone.
-- Charts: one scale each, hairline grid, no gradients, labels in Midnight. Sea Green, Marigold and Coral are under 3 to 1 against white, so a thin line in one of them uses its darker shade, and a bar in one has its value beside it. Each chart has a tooltip, which the keyboard can reach too, and a table view of its figures.
+- A stage or status is a colored dot with its name in the text color, except in the pipeline's column blocks and the funnel, which are filled with the stage's color. Their text is Midnight, or white on Cerulean and Midnight. Lost's column block is Sea Mist `#CDD8DB` with Midnight text, because no text is readable enough on Lost's gray-blue. In dark mode, where Sea Mist is Won's, Lost's block is Midnight with Sea Mist text. The name is always there: Marigold and Coral are too close to tell apart by color alone.
+- Charts: one scale each, hairline grid, no gradients, labels in the text color. Sea Green, Marigold and Coral are under 3 to 1 against white, so in light mode a thin line in one of them uses its darker shade, and a bar in one has its value beside it. Against black all five brand colors are above 5 to 1, so dark mode's lines use them as they are. Each chart has a tooltip, which the keyboard can reach too, and a table view of its figures.
 - No border on one edge of a panel, and no line across the top of a page. Gradients are avoided.
-- Shadows are soft and few: on a card being dragged, on dialogs and on menus.
+- Shadows are soft and few: on a card being dragged, on dialogs and on menus. In dark mode they're black.
 - Words are short and plain, with no exclamation marks. Buttons say what they do: "Add deal", "Log activity", "Delete contact".
 
 ### Chosen look
 
-Mockup D, Stream with blocks: `docs/mockups/d-stream-blocks.html`, with `d-stream-blocks-dashboard.png` and `d-stream-blocks-pipeline.png` beside it. It's the reference for how the dashboard and pipeline look. Where it and this spec differ, this spec is right: for example, overdue follow-ups show their date, which mockup D doesn't.
+Mockup D, Stream with blocks: `docs/mockups/d-stream-blocks.html`, with `d-stream-blocks-dashboard.png` and `d-stream-blocks-pipeline.png` beside it. It's the reference for how the dashboard and pipeline look. Where it and this spec differ, this spec is right: for example, overdue follow-ups show their date, which mockup D doesn't. Dark mode has no mockup: it's mockup D in the dark colors above, and `docs/changes/dark-mode/` has screenshots of the dashboard and the pipeline in both modes.
 
 ## Not built yet
 
 - Sign-in, user accounts, several people sharing the same data, and a record of who did what
 - Making Accountable available beyond the computer it runs on
-- A dark mode or a layout for phones
+- A layout for phones
+- Following the device's own dark mode setting
 - AI features
 - Email, calendar or phone integrations
 - Currencies other than US dollars
